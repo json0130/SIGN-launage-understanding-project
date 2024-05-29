@@ -274,7 +274,7 @@ QTabBar::tab:selected {
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>1</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -283,7 +283,7 @@ QTabBar::tab:selected {
      <attribute name="title">
       <string>  Data  </string>
      </attribute>
-     <widget class="QFrame" name="frame_2">
+     <widget class="QFrame" name="Data_butto_frame">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -572,7 +572,7 @@ QPushButton:pressed {
        </item>
       </layout>
      </widget>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="data_image_title">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -668,7 +668,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
        </item>
       </layout>
      </widget>
-     <widget class="QLabel" name="label_5">
+     <widget class="QLabel" name="data_button_title">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -688,7 +688,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
        <string>Select Images For Data Set</string>
       </property>
      </widget>
-     <widget class="Line" name="line_4">
+     <widget class="Line" name="data_line">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -712,7 +712,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
      <attribute name="title">
       <string>  Train  </string>
      </attribute>
-     <widget class="QFrame" name="options_frame">
+     <widget class="QFrame" name="train_options_frame">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1000,7 +1000,7 @@ QPushButton:pressed {
        </item>
       </layout>
      </widget>
-     <widget class="QFrame" name="options_frame_2">
+     <widget class="QFrame" name="train_model_frame">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1064,7 +1064,7 @@ QPushButton:pressed {
         </spacer>
        </item>
        <item row="0" column="1">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="train_model_title">
          <property name="minimumSize">
           <size>
            <width>0</width>
@@ -1100,7 +1100,7 @@ QPushButton:pressed {
        </item>
       </layout>
      </widget>
-     <widget class="Line" name="line">
+     <widget class="Line" name="train_line_bottom">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1113,7 +1113,7 @@ QPushButton:pressed {
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="Line" name="line_2">
+     <widget class="Line" name="train_line_top">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1131,7 +1131,7 @@ QPushButton:pressed {
      <attribute name="title">
       <string>  Test  </string>
      </attribute>
-     <widget class="QWidget" name="widget" native="true">
+     <widget class="QWidget" name="result_widget" native="true">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1147,7 +1147,7 @@ QPushButton:pressed {
        </size>
       </property>
      </widget>
-     <widget class="QFrame" name="frame">
+     <widget class="QFrame" name="test_button_frame">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1436,7 +1436,7 @@ QPushButton:pressed {
        </item>
       </layout>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="test_result_title">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1456,7 +1456,7 @@ QPushButton:pressed {
        <string>Test Results:</string>
       </property>
      </widget>
-     <widget class="Line" name="line_3">
+     <widget class="Line" name="test_line">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1475,7 +1475,7 @@ QPushButton:pressed {
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
-     <widget class="QLabel" name="label_4">
+     <widget class="QLabel" name="test_button_title">
       <property name="geometry">
        <rect>
         <x>30</x>
