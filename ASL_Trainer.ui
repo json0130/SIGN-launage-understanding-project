@@ -274,7 +274,7 @@ QTabBar::tab:selected {
      <enum>QTabWidget::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="documentMode">
      <bool>false</bool>
@@ -294,7 +294,7 @@ QTabBar::tab:selected {
       </property>
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">
-        <widget class="QFrame" name="frame">
+        <widget class="QFrame" name="photo_frame">
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -303,7 +303,7 @@ QTabBar::tab:selected {
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="data_photos_label">
             <property name="minimumSize">
              <size>
               <width>400</width>
@@ -321,7 +321,7 @@ QTabBar::tab:selected {
            </widget>
           </item>
           <item>
-           <widget class="QScrollBar" name="verticalScrollBar">
+           <widget class="QScrollBar" name="data_scroll">
             <property name="styleSheet">
              <string notr="true">QScrollBar:vertical {
     background: #333333;
@@ -368,7 +368,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
         </widget>
        </item>
        <item row="0" column="0">
-        <widget class="QFrame" name="frame_2">
+        <widget class="QFrame" name="button_frame">
          <property name="maximumSize">
           <size>
            <width>600</width>
@@ -383,7 +383,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <spacer name="horizontalSpacer">
+           <spacer name="button_spacer_left">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -396,7 +396,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="data_file_button">
             <property name="minimumSize">
              <size>
               <width>120</width>
@@ -625,12 +625,12 @@ QPushButton:pressed {
 }</string>
             </property>
             <property name="text">
-             <string>Select Images</string>
+             <string>Upload Images</string>
             </property>
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_2">
+           <spacer name="button_spacer_right">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -652,16 +652,435 @@ QPushButton:pressed {
      <attribute name="title">
       <string>  Train  </string>
      </attribute>
-    </widget>
-    <widget class="QWidget" name="view">
-     <attribute name="title">
-      <string>  View  </string>
-     </attribute>
+     <widget class="QFrame" name="options_frame">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>260</y>
+        <width>531</width>
+        <height>451</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame {
+    background-color: #333333;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="7" column="1">
+        <widget class="QSpinBox" name="train_batch">
+         <property name="maximum">
+          <number>500</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="train_batch_label">
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+}</string>
+         </property>
+         <property name="text">
+          <string>0                                                250                                            500</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="1">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Minimum</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSlider" name="train_slider">
+         <property name="styleSheet">
+          <string notr="true">QSlider::groove:horizontal {
+    height: 4px;
+    background: #F0F0F0;
+    margin: 2px 0;
+    border-radius: 4px;
+}
+
+QSlider::handle:horizontal {
+    background: #345CC1;
+    width: 24px;
+    height: 18px;
+    margin: -5px 0; /* handle is placed by default on the contents rect of the groove, margin is for collision */
+}
+
+QSlider::handle:horizontal:hover {
+    background: #2A4BA0;
+}
+
+QSlider::handle:horizontal:pressed {
+    background: #1E3C8C;
+}</string>
+         </property>
+         <property name="maximum">
+          <number>99</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QSpinBox" name="train_epoch">
+         <property name="maximum">
+          <number>200</number>
+         </property>
+         <property name="singleStep">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer name="horizontalSpacer_l">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="10" column="1">
+        <widget class="QPushButton" name="train_start_button">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+    background-color: #345CC1;
+    color: white; /* Set text color to white for better contrast */
+    border: none;
+    padding: 8px 16px; /* Optional: Add some padding for better appearance */
+}
+
+QPushButton:hover {
+    background-color: #2A4BA0; /* Optional: Slightly darker color on hover */
+}
+
+QPushButton:pressed {
+    background-color: #1E3C8C; /* Optional: Even darker color when pressed */
+}
+</string>
+         </property>
+         <property name="text">
+          <string>Start Training</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="epoch_label">
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+}</string>
+         </property>
+         <property name="text">
+          <string>0                                                100                                            200</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <spacer name="horizontalSpacer_r">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="9" column="1">
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="train_batch_title">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+	font-weight: bold;
+}</string>
+         </property>
+         <property name="text">
+          <string>Batch Size</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLabel" name="train_epoch_title">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+	font-weight: bold;
+}</string>
+         </property>
+         <property name="text">
+          <string>Epochs</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="train_ratio_title">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+	font-weight: bold;
+}
+</string>
+         </property>
+         <property name="text">
+          <string>Train/Test Ratio</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLabel" name="train_ratio_label">
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+}</string>
+         </property>
+         <property name="text">
+          <string>0                                                 50                                              99</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="options_frame_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>50</y>
+        <width>528</width>
+        <height>101</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QFrame {
+    background-color: #333333;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="2" column="1">
+        <widget class="QComboBox" name="train_combobox">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>30</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="7">
+        <spacer name="traub_select_r">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="2" column="0">
+        <spacer name="train_space_l">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: white;
+	font-weight: bold;
+}</string>
+         </property>
+         <property name="text">
+          <string>                                           Select Model</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <spacer name="verticalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="Line" name="line">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>230</y>
+        <width>531</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="Line" name="line_2">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>160</y>
+        <width>531</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="test">
      <attribute name="title">
       <string>  Test  </string>
      </attribute>
+     <widget class="QWidget" name="widget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>280</y>
+        <width>120</width>
+        <height>80</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
