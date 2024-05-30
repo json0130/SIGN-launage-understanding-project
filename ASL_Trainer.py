@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from ASL_Training import Ui_training_session
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -389,7 +390,13 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    # Function to upload files for data set
+    def uploadFiles(self):
+        #accessing the file path to pictures
+        files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.jpg *.png)")
 
+        if files:
+            pass
         
 	# Funtion to upload files for data set 
     def selectToTest(self):
@@ -404,8 +411,10 @@ class Ui_MainWindow(object):
 
     # Function that opens another window 
     def startTraining(self):
-        
-            
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_training_session()
+        self.ui.setupUi(self.window)
+        self.window.show()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
