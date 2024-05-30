@@ -205,8 +205,8 @@ class Ui_MainWindow(object):
         self.train_slider.setObjectName("train_slider")
         self.gridLayout_2.addWidget(self.train_slider, 1, 1, 1, 1)
         self.train_epoch = QtWidgets.QSpinBox(self.train_options_frame)
-        self.train_epoch.setMaximum(200)
-        self.train_epoch.setSingleStep(10)
+        self.train_epoch.setMaximum(60)
+        self.train_epoch.setSingleStep(5)
         self.train_epoch.setObjectName("train_epoch")
         self.gridLayout_2.addWidget(self.train_epoch, 4, 1, 1, 1)
         spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -317,7 +317,7 @@ class Ui_MainWindow(object):
         self.test = QtWidgets.QWidget()
         self.test.setObjectName("test")
         self.result_widget = QtWidgets.QWidget(self.test)
-        self.result_widget.setGeometry(QtCore.QRect(30, 160, 540, 551))
+        self.result_widget.setGeometry(QtCore.QRect(30, 16, 540, 551))
         self.result_widget.setMinimumSize(QtCore.QSize(540, 0))
         self.result_widget.setObjectName("result_widget")
         self.test_button_frame = QtWidgets.QFrame(self.test)
@@ -393,7 +393,7 @@ class Ui_MainWindow(object):
     # Function to upload files for data set
     def uploadFiles(self):
         #accessing the file path to pictures
-        files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.jpg *.png)")
+        files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
 
         if files:
             pass
@@ -419,13 +419,13 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ASL TRAINER"))
-        self.data_file_button.setText(_translate("MainWindow", "Upload Images"))
+        self.data_file_button.setText(_translate("MainWindow", "Upload Dataset"))
         self.data_image_title.setText(_translate("MainWindow", "Data Set:"))
         self.data_button_title.setText(_translate("MainWindow", "Select Images For Data Set"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load), _translate("MainWindow", "  Data  "))
         self.train_batch_label.setText(_translate("MainWindow", "0                                                250                                            500"))
         self.train_start_button.setText(_translate("MainWindow", "Start Training"))
-        self.epoch_label.setText(_translate("MainWindow", "0                                                100                                            200"))
+        self.epoch_label.setText(_translate("MainWindow", "0                                                 30                                              60"))
         self.train_batch_title.setText(_translate("MainWindow", "Batch Size"))
         self.train_epoch_title.setText(_translate("MainWindow", "Epochs"))
         self.train_ratio_title.setText(_translate("MainWindow", "Train/Test Ratio"))
@@ -434,7 +434,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.train), _translate("MainWindow", "  Train  "))
         self.data_file_button_2.setText(_translate("MainWindow", "Upload Images"))
         self.test_result_title.setText(_translate("MainWindow", "Test Results:"))
-        self.test_button_title.setText(_translate("MainWindow", "Select Images To Test"))
+        self.test_button_title.setText(_translate("MainWindow", "Select Method To Test"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.test), _translate("MainWindow", "  Test  "))
         self.actionsave.setText(_translate("MainWindow", "save"))
         self.actionsave.setStatusTip(_translate("MainWindow", "Save the current file"))
