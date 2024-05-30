@@ -7,7 +7,7 @@ from train import ASLModel, data_transform
 # Load the trained model
 num_classes = 26  # Number of ASL classes
 model = ASLModel(num_classes)
-model.load_state_dict(torch.load('asl_model.pth'))
+model.load_state_dict(torch.load('asl_resnet_model.pth'))
 model.eval()
 
 # Real-time testing using webcam

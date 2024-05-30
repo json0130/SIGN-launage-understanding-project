@@ -152,35 +152,5 @@ plt.title('Training Loss')
 plt.grid(True) 
 plt.show()
 
-# Real-time testing using webcam
-cap = cv2.VideoCapture(0)  # Use 0 for the default webcam
-
-while True:
-    ret, frame = cap.read()
-    
-    if not ret:
-        break
-    
-    # Preprocess the frame
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    frame = cv2.resize(frame, (224, 224))
-    frame = data_transform(frame).unsqueeze(0).to(device)
-    
-    # Make predictions
-    with torch.no_grad():
-        outputs = model(frame)
-        _, predicted = torch.max(outputs.data, 1)
-        predicted_label = train_dataset.classes[predicted.item()]
-    
-    # Display the predicted label on the frame
-    cv2.putText(frame, predicted_label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    
-    cv2.imshow('Webcam', frame)
-    
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-cap.release()
-cv2.destroyAllWindows()
-
-
+# save the trained model
+torch.save(model.load_state_dict(), 'asl_resnet_model.pth')
