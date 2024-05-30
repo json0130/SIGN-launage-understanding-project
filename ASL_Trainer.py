@@ -389,6 +389,24 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+
+        
+	# Funtion to upload files for data set 
+    def selectToTest(self):
+        #accessing the file path to pictures
+        files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.jpg *.png)")
+
+        if files: 
+            # Complete this shit later 
+            self.selected_files = files
+            for file in self.selected_files:
+                print(file)
+
+    # Function that opens another window 
+    def startTraining(self):
+        
+            
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ASL TRAINER"))
