@@ -1,6 +1,6 @@
 # Sign Language Understanding Project
 
-This project aims to analyze and interpret sign language using three different machine learning models: Inception v3, YOLOv8, and SUNSHINE23. The system can recognize and understand sign language in real-time by leveraging the user's webcam input.
+This project aims to analyze and interpret sign language using three different machine learning models: Inception v3, ResNet 50, and SUNSHINE23. The system can recognize and understand sign language in real-time by leveraging the user's webcam input.
 
 ## Features
 
@@ -8,7 +8,7 @@ This project aims to analyze and interpret sign language using three different m
 - Robust backend developed in Python
 - Integration of three powerful models for sign language analysis:
   - Inception v3
-  - YOLOv8
+  - ResNet 50
   - SUNSHINE23 (Our team Model)
 
 ## Installation
