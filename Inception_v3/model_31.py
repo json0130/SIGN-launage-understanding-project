@@ -27,6 +27,28 @@ class ASLModel(nn.Module):
 
     def forward(self, x):
         return self.inception(x)
+    
+# Create a custom dataset
+class ASLDataset(Dataset):
+    def __init__(self, data, transform=None):
+        self.data = data
+        self.transform = transform
+        self.classes = sorted(data['label'].unique().tolist())
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        row = self.data.iloc[idx]
+        label = self.classes.index(row['label'])
+        pixels = row.iloc[1:].values.astype(np.uint8)
+        image = pixels.reshape(28, 28, 1)  # Assuming grayscale images
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)  # Convert to RGB
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, label
 
 def main():
     # Prepare data generator for standardizing frames before sending them into the model
@@ -34,29 +56,7 @@ def main():
         transforms.ToTensor(),
         transforms.Resize((299, 299)),  # Resize for InceptionV3
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
-
-    # Create a custom dataset
-    class ASLDataset(Dataset):
-        def __init__(self, data, transform=None):
-            self.data = data
-            self.transform = transform
-            self.classes = sorted(data['label'].unique().tolist())
-
-        def __len__(self):
-            return len(self.data)
-
-        def __getitem__(self, idx):
-            row = self.data.iloc[idx]
-            label = self.classes.index(row['label'])
-            pixels = row.iloc[1:].values.astype(np.uint8)
-            image = pixels.reshape(28, 28, 1)  # Assuming grayscale images
-            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)  # Convert to RGB
-
-            if self.transform:
-                image = self.transform(image)
-
-            return image, label
+    ]) 
 
     # Load the dataset
     data = pd.read_csv('../dataset.csv', low_memory=False)
@@ -166,4 +166,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
