@@ -27,14 +27,7 @@ class ASLModel(nn.Module):
 
     def forward(self, x):
         return self.inception(x)
-
-# Prepare data generator for standardizing frames before sending them into the model
-data_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Resize((299, 299)),  # Resize for InceptionV3
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
-
+    
 # Create a custom dataset
 class ASLDataset(Dataset):
     def __init__(self, data, transform=None):
@@ -57,101 +50,119 @@ class ASLDataset(Dataset):
 
         return image, label
 
-# Load the dataset
-data = pd.read_csv('dataset.csv', low_memory=False)
+def main():
+    # Prepare data generator for standardizing frames before sending them into the model
+    data_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((299, 299)),  # Resize for InceptionV3
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ]) 
 
-# Split the dataset into train and test
-train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
+    # Load the dataset
+    data = pd.read_csv('../dataset.csv', low_memory=False)
 
-# Create datasets and data loaders
-train_dataset = ASLDataset(train_data, transform=data_transform)
-test_dataset = ASLDataset(test_data, transform=data_transform)
-batch_size = 8  # Reduced batch size for CPU training
+    # Split the dataset into train and test
+    train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 
-num_cores = os.cpu_count()
-num_workers = max(1, num_cores - 1)
+    # Create datasets and data loaders
+    train_dataset = ASLDataset(train_data, transform=data_transform)
+    test_dataset = ASLDataset(test_data, transform=data_transform)
+    batch_size = 8  # Reduced batch size for CPU training
 
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
+    num_cores = os.cpu_count()
+    num_workers = max(1, num_cores - 1)
 
-# Initialize the model
-num_classes = len(train_dataset.classes)
-model = ASLModel(num_classes)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
-# Define loss function and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+    # Initialize the model
+    num_classes = len(train_dataset.classes)
+    model = ASLModel(num_classes)
 
-# Training loop
-num_epochs = 5  # Reduced number of epochs for CPU training
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Initialize lists to store validation accuracy and training loss for each batch
-val_accuracies = []
-train_losses = []
+    # Training loop
+    num_epochs = 5  # Reduced number of epochs for CPU training
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
-# Create a figure and subplots for the live plot
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+    # Initialize lists to store validation accuracy and training loss for each batch
+    val_accuracies = []
+    train_losses = []
 
-# Training loop
-num_epochs = 5
-for epoch in range(num_epochs):
-    model.train()
-    running_loss = 0.0
-    total_batches = len(train_loader)
-    
-    for batch_idx, (images, labels) in enumerate(train_loader):
-        # Move data to device
-        images, labels = images.to(device), labels.to(device)
+    # Create a figure and subplots for the live plot
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+    # Training loop
+    num_epochs = 5
+    for epoch in range(num_epochs):
+        model.train()
+        running_loss = 0.0
+        total_batches = len(train_loader)
         
-        optimizer.zero_grad()
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
+        for batch_idx, (images, labels) in enumerate(train_loader):
+            # Move data to device
+            images, labels = images.to(device), labels.to(device)
+            
+            optimizer.zero_grad()
+            outputs = model(images)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+            
+            # Print progress and update the live plot every 10 batches
+            if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches:
+                progress = (batch_idx + 1) / total_batches * 100
+                print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%")
+                
+                # Update training loss plot
+                train_losses.append(running_loss / (batch_idx + 1))
+                ax1.clear()
+                ax1.plot(train_losses)
+                ax1.set_xlabel('Batch')
+                ax1.set_ylabel('Loss')
+                ax1.set_title('Training Loss')
+                
+                # Testing loop (run every 10 batches for validation accuracy)
+                model.eval()
+                correct = 0
+                total = 0
+                with torch.no_grad():
+                    for images, labels in test_loader:
+                        images, labels = images.to(device), labels.to(device)
+                        outputs = model(images)
+                        _, predicted = torch.max(outputs.data, 1)
+                        total += labels.size(0)
+                        correct += (predicted == labels).sum().item()
+                
+                # Update validation accuracy plot
+                val_accuracy = correct / total
+                val_accuracies.append(val_accuracy)
+                ax2.clear()
+                ax2.plot(val_accuracies)
+                ax2.set_xlabel('Batch')
+                ax2.set_ylabel('Accuracy')
+                ax2.set_title('Validation Accuracy')
+                
+                # Refresh the plot
+                plt.tight_layout()
+                plt.pause(0.1)
         
-        running_loss += loss.item()
-        
-        # Print progress and update the live plot every 10 batches
-        if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches:
-            progress = (batch_idx + 1) / total_batches * 100
-            print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%")
-            
-            # Update training loss plot
-            train_losses.append(running_loss / (batch_idx + 1))
-            ax1.clear()
-            ax1.plot(train_losses)
-            ax1.set_xlabel('Batch')
-            ax1.set_ylabel('Loss')
-            ax1.set_title('Training Loss')
-            
-            # Testing loop (run every 10 batches for validation accuracy)
-            model.eval()
-            correct = 0
-            total = 0
-            with torch.no_grad():
-                for images, labels in test_loader:
-                    images, labels = images.to(device), labels.to(device)
-                    outputs = model(images)
-                    _, predicted = torch.max(outputs.data, 1)
-                    total += labels.size(0)
-                    correct += (predicted == labels).sum().item()
-            
-            # Update validation accuracy plot
-            val_accuracy = correct / total
-            val_accuracies.append(val_accuracy)
-            ax2.clear()
-            ax2.plot(val_accuracies)
-            ax2.set_xlabel('Batch')
-            ax2.set_ylabel('Accuracy')
-            ax2.set_title('Validation Accuracy')
-            
-            # Refresh the plot
-            plt.tight_layout()
-            plt.pause(0.1)
-    
-    print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
+        print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
 
-# Show the final plot
-plt.show()
+
+    # Save the model
+    model_path = "asl_model.pth"
+    torch.save(model.state_dict(), model_path)
+    print(f"Model saved to {model_path}")
+
+    # Show the final plot
+    plt.show(block=False)
+
+
+if __name__ == '__main__':
+    main()
