@@ -82,7 +82,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Training loop
-num_epochs = 5  # Reduced number of epochs for CPU training
+num_epochs = 1  # Reduced number of epochs for CPU training
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
@@ -134,23 +134,23 @@ for epoch in range(num_epochs):
 
     print(f"Accuracy on test set: {(correct / total) * 100}%")
 
-# Plot validation accuracy graph 
-plt.figure(figsize=(8, 6)) 
-plt.plot(range(1, num_epochs + 1), val_accuracies, marker='o', linestyle='-') 
-plt.xlabel('Epoch') 
-plt.ylabel('Accuracy') 
-plt.title('Validation Accuracy') 
-plt.grid(True) 
-plt.show() 
+# # Plot validation accuracy graph 
+# plt.figure(figsize=(8, 6)) 
+# plt.plot(range(1, num_epochs + 1), val_accuracies, marker='o', linestyle='-') 
+# plt.xlabel('Epoch') 
+# plt.ylabel('Accuracy') 
+# plt.title('Validation Accuracy') 
+# plt.grid(True) 
+# plt.show() 
 
-# Plot training loss graph 
-plt.figure(figsize=(8, 6)) 
-plt.plot(range(1, num_epochs + 1), train_losses, marker='o', linestyle='-') 
-plt.xlabel('Epoch') 
-plt.ylabel('Loss') 
-plt.title('Training Loss') 
-plt.grid(True) 
-plt.show()
+# # Plot training loss graph 
+# plt.figure(figsize=(8, 6)) 
+# plt.plot(range(1, num_epochs + 1), train_losses, marker='o', linestyle='-') 
+# plt.xlabel('Epoch') 
+# plt.ylabel('Loss') 
+# plt.title('Training Loss') 
+# plt.grid(True) 
+# plt.show()
 
 # save the trained model
 torch.save(model.load_state_dict(), 'asl_resnet_model.pth')
