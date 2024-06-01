@@ -2,6 +2,7 @@ import os
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
 from ASL_Training import Ui_training_session
@@ -243,13 +244,16 @@ class Ui_MainWindow(object):
             positions = [(i, j) for i in range(8) for j in range(4)]
             for position, image in zip(positions, os.listdir('images')):
                 print("monke")
+                image_path = os.path.join('images', image)
+                image_data = open(image_path, 'rb').read()  # Read image data as bytes
+                # Create a QVBoxLayout
                 vBox = QtWidgets.QVBoxLayout()
                 QLabel = QtWidgets.QLabel()
                 QLabel.setFixedHeight(150) 
                 QLabel.setFixedWidth(150)
                 # Create a QPixmap to hold images                 
                 self.qp = QPixmap()
-                self.qp.loadFromData(image)
+                self.qp.loadFromData(image_data)
                 self.qp = self.qp.scaled(150, 150, QtCore.Qt.KeepAspectRatio)
                 # Setting the image to the QLabel
                 QLabel.setPixmap(self.qp)

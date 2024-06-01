@@ -20,7 +20,7 @@ class Camera(QMainWindow):
                          800, 600) 
   
         # setting style sheet 
-        self.setStyleSheet("background : grey;") 
+        self.setStyleSheet("background : #333333;") 
   
         # getting available cameras 
         self.available_cameras = QCameraInfo.availableCameras() 
@@ -136,36 +136,28 @@ class Camera(QMainWindow):
     def click_photo(self): 
         # Time stamp
         timestamp = time.strftime("%d-%b-%Y-%H_%M_%S")
-
         # Create file path for the image
         img_filename = os.path.join(self.save_path, "%s-%04d-%s.jpg" % (self.current_camera_name, self.save_seq, timestamp))
-
         #replace all / with \ in the path
         img_filename = img_filename.replace("/", "\\")
-        
         # Capture the image
         self.capture.capture(img_filename)
-        
+
         # Read the captured image using OpenCV
         img = cv2.imread(img_filename)
-        
         if img is None:
             print(f"Error: Unable to load image from {img_filename}")
             return
-        
         # Crop the image into a square from the center
         h, w = img.shape[:2]
         min_dim = min(h, w)
         start_x = (w - min_dim) // 2
         start_y = (h - min_dim) // 2
         cropped_img = img[start_y:start_y+min_dim, start_x:start_x+min_dim]
-        
         # Resize to 28x28
         resized_img = cv2.resize(cropped_img, (28, 28))
-        
         # Convert to grayscale
         gray_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
-        
         # Flatten the image
         flattened_img = gray_img.flatten()
         
