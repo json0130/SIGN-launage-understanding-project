@@ -18,6 +18,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setStyleSheet("QTabWidget::pane { border: 1px solid #1F1F1F; background: #1F1F1F;}\n"
                                      "QTabBar::tab { background: #333333; color: #ffffff; padding: 10px;}\n"
                                      "QTabBar::tab:selected { background: #1F1F1F; color: #FFFFFF;}")
+        
 # =================================|| Data Tab ||=================================
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setDocumentMode(False)
@@ -63,47 +64,16 @@ class Ui_MainWindow(object):
         self.scroll.setWidgetResizable(False)
         # Create Scroll Bar
         self.data_scroll = self.scroll.verticalScrollBar()
-        self.data_scroll.setStyleSheet("QScrollBar:vertical {\n"
-    "    background: #333333;\n"
-    "    width: 15px;\n"
-    "    margin: 22px 0 22px 0;\n"
-    "}\n"
-    "\n"
-    "QScrollBar::handle:vertical {\n"
-    "    background: #545454; \n"
-    "    min-height: 20px;\n"
-    "    border-radius: 5px;\n"
-    "}\n"
-    "\n"
-    "QScrollBar::add-line:vertical {\n"
-    "    background: #333333;\n"
-    "    height: 20px;\n"
-    "    subcontrol-position: bottom;\n"
-    "    subcontrol-origin: margin;\n"
-    "}\n"
-    "\n"
-    "QScrollBar::sub-line:vertical {\n"
-    "    background: #333333;\n"
-    "    height: 20px;\n"
-    "    subcontrol-position: top;\n"
-    "    subcontrol-origin: margin;\n"
-    "}\n"
-    "\n"
-    "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {\n"
-    "    width: 3px;\n"
-    "    height: 3px;\n"
-    "    background: white;\n"
-    "}\n"
-    "\n"
-    "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {\n"
-    "    background: none;\n"
-    "}")
+        self.data_scroll.setStyleSheet("QScrollBar:vertical {background: #333333; width: 15px; margin: 22px 0 22px 0;}\n"
+                                       "QScrollBar::handle:vertical {background: #545454; min-height: 20px; border-radius: 5px;}\n"
+                                       "QScrollBar::add-line:vertical {background: #333333; height: 20px; subcontrol-position: bottom; subcontrol-origin: margin;}\n"
+                                       "QScrollBar::sub-line:vertical {background: #333333; height: 20px; subcontrol-position: top; subcontrol-origin: margin;}\n"
+                                       "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {width: 3px; height: 3px; background: white;}\n"
+                                       "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}")
         # Create a QVBoxLayout
         self.layout = QtWidgets.QVBoxLayout()
         # Add the Scroll Area to the Layout
         self.layout.addWidget(self.scroll)
-    
-
 # =================================|| Train Tab ||=================================
 
         self.tabWidget.addTab(self.load, "")
@@ -123,27 +93,10 @@ class Ui_MainWindow(object):
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem2, 11, 1, 1, 1)
         self.train_slider = QtWidgets.QSlider(self.train_options_frame)
-        self.train_slider.setStyleSheet("QSlider::groove:horizontal {\n"
-"    height: 4px;\n"
-"    background: #F0F0F0;\n"
-"    margin: 2px 0;\n"
-"    border-radius: 4px;\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal {\n"
-"    background: #345CC1;\n"
-"    width: 24px;\n"
-"    height: 18px;\n"
-"    margin: -5px 0; /* handle is placed by default on the contents rect of the groove, margin is for collision */\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal:hover {\n"
-"    background: #2A4BA0;\n"
-"}\n"
-"\n"
-"QSlider::handle:horizontal:pressed {\n"
-"    background: #1E3C8C;\n"
-"}")
+        self.train_slider.setStyleSheet("QSlider::groove:horizontal {height: 4px; background: #F0F0F0; margin: 2px 0; border-radius: 4px;}\n"
+                                        "QSlider::handle:horizontal {background: #345CC1; width: 24px; height: 18px; margin: -5px 0;}\n"
+                                        "QSlider::handle:horizontal:hover {background: #2A4BA0;}\n"
+                                        "QSlider::handle:horizontal:pressed {background: #1E3C8C;}")
         self.train_slider.setMaximum(99)
         self.train_slider.setOrientation(QtCore.Qt.Horizontal)
         self.gridLayout_2.addWidget(self.train_slider, 1, 1, 1, 1)
@@ -205,8 +158,8 @@ class Ui_MainWindow(object):
         self.train_line_top = QtWidgets.QFrame(self.train)
         self.train_line_top.setGeometry(QtCore.QRect(30, 160, 531, 16))
         self.train_line_top.setFrameShape(QtWidgets.QFrame.HLine)
-
 # =================================|| Test Tab ||=================================
+
         self.tabWidget.addTab(self.train, "")
         self.test = QtWidgets.QWidget()
         self.test_button_frame = QtWidgets.QFrame(self.test)
@@ -269,10 +222,10 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+# =================================|| Functions ||=================================
 
     # Function to upload files for data set
     def uploadFiles(self):
-
         # Create a GridLayout
         self.data_display = QtWidgets.QGridLayout()
         # Put the GridLayout in the Frame
