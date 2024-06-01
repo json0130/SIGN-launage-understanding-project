@@ -10,7 +10,7 @@ import cv2
 import numpy as np
   
 # Main window class 
-class MainWindow(QMainWindow): 
+class Camera(QMainWindow): 
     # constructor 
     def __init__(self): 
         super().__init__() 
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
                          800, 600) 
   
         # setting style sheet 
-        self.setStyleSheet("background : lightgrey;") 
+        self.setStyleSheet("background : grey;") 
   
         # getting available cameras 
         self.available_cameras = QCameraInfo.availableCameras() 
@@ -190,21 +190,16 @@ class MainWindow(QMainWindow):
   
     # method for alerts 
     def alert(self, msg): 
-  
         # error message 
         error = QErrorMessage(self) 
-  
         # setting text to the error message 
         error.showMessage(msg) 
   
 # Driver code 
 if __name__ == "__main__" : 
-    
   # create pyqt5 app 
   App = QApplication(sys.argv) 
-  
   # create the instance of our Window 
-  window = MainWindow() 
-  
+  window = Camera() 
   # start the app 
   sys.exit(App.exec()) 

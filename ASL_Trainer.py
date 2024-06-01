@@ -1,7 +1,11 @@
 import os
 import math
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import *
+from PyQt5.QtMultimedia import *
+from PyQt5.QtMultimediaWidgets import *
 from ASL_Training import Ui_training_session
+from ASL_CAM import Camera
 from csv_to_images import csv_to_images
 
 class Ui_MainWindow(object):
@@ -277,10 +281,15 @@ class Ui_MainWindow(object):
         self.window.show()
 
     def openWebcam(self):
-        self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_training_session()
-        self.ui.setupUi(self.window)
-        self.window.show()
+        # Check if an instance of QApplication already exists
+        app = QtWidgets.QApplication.instance()
+        if app is None:
+            app = QtWidgets.QApplication(sys.argv)
+
+        window = Camera()
+        window.show()
+        if app is None:
+            sys.exit(app.exec_())
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
