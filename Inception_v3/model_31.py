@@ -156,7 +156,7 @@ def main():
 
 
     # Save the model
-    model_path = "asl_model.pth"
+    model_path = "inceptionV3_asl_model.pth"
     torch.save(model.state_dict(), model_path)
     print(f"Model saved to {model_path}")
 
