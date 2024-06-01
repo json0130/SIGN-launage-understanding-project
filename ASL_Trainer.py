@@ -40,11 +40,6 @@ class Ui_MainWindow(object):
         self.data_button_title = QtWidgets.QLabel(self.load)
         self.data_button_title.setGeometry(QtCore.QRect(30, 30, 181, 16))
         self.data_button_title.setStyleSheet("QLabel {color: white; font-weight: bold;}")
-        # Create Line
-        self.data_line = QtWidgets.QFrame(self.load)
-        self.data_line.setGeometry(QtCore.QRect(30, 120, 540, 20))
-        self.data_line.setMinimumSize(QtCore.QSize(540, 0))
-        self.data_line.setFrameShape(QtWidgets.QFrame.HLine)
         # Create button
         self.horizontalLayout_3.addWidget(self.data_file_button)
         spacerItem1 = QtWidgets.QSpacerItem(191, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -58,22 +53,25 @@ class Ui_MainWindow(object):
         self.display_frame.setGeometry(QtCore.QRect(30, 160, 541, 551))
         self.display_frame.setMinimumSize(QtCore.QSize(540, 0))
         self.display_frame.setStyleSheet("QFrame {background-color: #333333;}")
-        # Create Scroll Area
-        self.scroll = QtWidgets.QScrollArea()
-        self.scroll.setWidget(self.display_frame)
-        self.scroll.setWidgetResizable(False)
-        # Create Scroll Bar
-        self.data_scroll = self.scroll.verticalScrollBar()
-        self.data_scroll.setStyleSheet("QScrollBar:vertical {background: #333333; width: 15px; margin: 22px 0 22px 0;}\n"
-                                       "QScrollBar::handle:vertical {background: #545454; min-height: 20px; border-radius: 5px;}\n"
-                                       "QScrollBar::add-line:vertical {background: #333333; height: 20px; subcontrol-position: bottom; subcontrol-origin: margin;}\n"
-                                       "QScrollBar::sub-line:vertical {background: #333333; height: 20px; subcontrol-position: top; subcontrol-origin: margin;}\n"
-                                       "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {width: 3px; height: 3px; background: white;}\n"
-                                       "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}")
-        # Create a QVBoxLayout
-        self.layout = QtWidgets.QVBoxLayout()
-        # Add the Scroll Area to the Layout
-        self.layout.addWidget(self.scroll)
+
+        #insert the code into here
+
+        # # Create Scroll Area
+        # self.scroll = QtWidgets.QScrollArea()
+        # self.scroll.setWidget(self.display_frame)
+        # self.scroll.setWidgetResizable(False)
+        # # Create Scroll Bar
+        # self.data_scroll = self.scroll.verticalScrollBar()
+        # self.data_scroll.setStyleSheet("QScrollBar:vertical {background: #333333; width: 15px; margin: 22px 0 22px 0;}\n"
+        #                                "QScrollBar::handle:vertical {background: #545454; min-height: 20px; border-radius: 5px;}\n"
+        #                                "QScrollBar::add-line:vertical {background: #333333; height: 20px; subcontrol-position: bottom; subcontrol-origin: margin;}\n"
+        #                                "QScrollBar::sub-line:vertical {background: #333333; height: 20px; subcontrol-position: top; subcontrol-origin: margin;}\n"
+        #                                "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {width: 3px; height: 3px; background: white;}\n"
+        #                                "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}")
+        # # Create a QVBoxLayout
+        # self.layout = QtWidgets.QVBoxLayout()
+        # # Add the Scroll Area to the Layout
+        # self.layout.addWidget(self.scroll)
 # =================================|| Train Tab ||=================================
 
         self.tabWidget.addTab(self.load, "")
