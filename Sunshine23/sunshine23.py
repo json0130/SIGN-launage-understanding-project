@@ -90,81 +90,87 @@ class ASLDataset(Dataset):
 
         return image, label
 
-# Load the dataset (assuming you have it in a pandas DataFrame)
-data = pd.read_csv('dataset.csv', low_memory=False)
 
-# Split the dataset into train and test
-train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
+def main():
+    # Load the dataset (assuming you have it in a pandas DataFrame)
+    data = pd.read_csv('dataset.csv', low_memory=False)
 
-# Create datasets and data loaders
-train_dataset = ASLDataset(train_data, transform=data_transform)
-test_dataset = ASLDataset(test_data, transform=data_transform)
-batch_size = 8
+    # Split the dataset into train and test
+    train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    # Create datasets and data loaders
+    train_dataset = ASLDataset(train_data, transform=data_transform)
+    test_dataset = ASLDataset(test_data, transform=data_transform)
+    batch_size = 8
 
-# Initialize the model
-num_classes = len(train_dataset.classes)
-model = FeatureConcatModel(num_classes)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-# Define loss function and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # Initialize the model
+    num_classes = len(train_dataset.classes)
+    model = FeatureConcatModel(num_classes)
 
-# Training loop
-num_epochs = 5
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
+    # Define loss function and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-val_accuracies = []
-train_losses = []
+    # Training loop
+    num_epochs = 5
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
-for epoch in range(num_epochs):
-    running_loss = 0.0
-    model.train()
-    total_batches = len(train_loader)
+    val_accuracies = []
+    train_losses = []
+
+    for epoch in range(num_epochs):
+        running_loss = 0.0
+        model.train()
+        total_batches = len(train_loader)
 
 
-    for batch_idx, (images, labels) in enumerate(train_loader):
-        images = images.to(device)
-        labels = labels.to(device)
-
-        optimizer.zero_grad()
-        outputs = model(images)
-        loss = criterion(outputs, labels)
-        loss.backward()
-        optimizer.step()
-
-        running_loss += loss.item()
-
-        # Print progress 
-        if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches: 
-            progress = (batch_idx + 1) / total_batches * 100 
-            print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%") 
-
-    train_losses.append(running_loss / len(train_loader))
-    
-    print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
-
-    # Testing loop
-    model.eval()
-    correct = 0
-    total = 0
-    with torch.no_grad():
-        for images, labels in test_loader:
+        for batch_idx, (images, labels) in enumerate(train_loader):
             images = images.to(device)
             labels = labels.to(device)
 
+            optimizer.zero_grad()
             outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
 
-    val_accuracy = correct / total
-    val_accuracies.append(val_accuracy)
+            running_loss += loss.item()
 
-    print(f"Accuracy on test set: {(correct / total) * 100}%")
+            # Print progress 
+            if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches: 
+                progress = (batch_idx + 1) / total_batches * 100 
+                print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%") 
 
-# Save the trained model
-torch.save(model.state_dict(), 'feature_concat_model.pth')
+        train_losses.append(running_loss / len(train_loader))
+        
+        print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
+
+        # Testing loop
+        model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for images, labels in test_loader:
+                images = images.to(device)
+                labels = labels.to(device)
+
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+
+        val_accuracy = correct / total
+        val_accuracies.append(val_accuracy)
+
+        print(f"Accuracy on test set: {(correct / total) * 100}%")
+
+    # Save the trained model
+    torch.save(model.state_dict(), 'feature_concat_model.pth')
+
+
+if __name__ == '__main__':
+    main()
