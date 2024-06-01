@@ -82,17 +82,10 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-<<<<<<< HEAD:ResNet_50/train.py
-# Training loop
-num_epochs = 1  # Reduced number of epochs for CPU training
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-=======
     # Training loop
     num_epochs = 5  # Reduced number of epochs for CPU training
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
->>>>>>> b5a71c23ff95cebef48457d9fc64f7a799eebba5:ResNet_50/resnet50.py
 
     val_accuracies = []
     train_losses = []
@@ -108,37 +101,6 @@ model.to(device)
             
             optimizer.zero_grad()
             outputs = model(images)
-<<<<<<< HEAD:ResNet_50/train.py
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
-    val_accuracy = correct / total
-    val_accuracies.append(val_accuracy)
-
-    print(f"Accuracy on test set: {(correct / total) * 100}%")
-
-# # Plot validation accuracy graph 
-# plt.figure(figsize=(8, 6)) 
-# plt.plot(range(1, num_epochs + 1), val_accuracies, marker='o', linestyle='-') 
-# plt.xlabel('Epoch') 
-# plt.ylabel('Accuracy') 
-# plt.title('Validation Accuracy') 
-# plt.grid(True) 
-# plt.show() 
-
-# # Plot training loss graph 
-# plt.figure(figsize=(8, 6)) 
-# plt.plot(range(1, num_epochs + 1), train_losses, marker='o', linestyle='-') 
-# plt.xlabel('Epoch') 
-# plt.ylabel('Loss') 
-# plt.title('Training Loss') 
-# plt.grid(True) 
-# plt.show()
-
-# save the trained model
-torch.save(model.load_state_dict(), 'asl_resnet_model.pth')
-=======
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -197,4 +159,3 @@ torch.save(model.load_state_dict(), 'asl_resnet_model.pth')
 
 if __name__ == '__main__':
     main()
->>>>>>> b5a71c23ff95cebef48457d9fc64f7a799eebba5:ResNet_50/resnet50.py

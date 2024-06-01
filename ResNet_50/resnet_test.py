@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 import torch
 import torchvision.transforms as transforms
-from resnet50 import ASLModel, data_transform
+from train import ASLModel, data_transform
 
 # Load the trained model
-num_classes = 26  # Number of ASL classes
+num_classes = 34  # Number of ASL classes
 model = ASLModel(num_classes)
 model.load_state_dict(torch.load('asl_resnet_model.pth'))
 model.eval()
