@@ -11,6 +11,7 @@ from ASL_Results import Ui_Results
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel
+from PIL import Image
 
 
 class Ui_MainWindow(object):
@@ -162,31 +163,34 @@ class Ui_MainWindow(object):
         self.train_line_top.setGeometry(QtCore.QRect(30, 160, 531, 16))
         self.train_line_top.setFrameShape(QtWidgets.QFrame.HLine)
 # =================================|| Test Tab ||=================================
-
         self.tabWidget.addTab(self.train, "")
         self.test = QtWidgets.QWidget()
         self.test_button_frame = QtWidgets.QFrame(self.test)
         self.test_button_frame.setGeometry(QtCore.QRect(30, 50, 540, 60))
-        self.test_button_frame.setMinimumSize(QtCore.QSize(540, 0))
         self.test_button_frame.setStyleSheet("QFrame {background-color: #333333;}")
         self.test_button_frame.setFrameShape(QtWidgets.QFrame.Panel)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.test_button_frame)
         # Create Button to access files for testing
         self.test_file_button = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.selectToTest())
-        self.test_file_button.setMinimumSize(QtCore.QSize(120, 40))
-        self.test_file_button.setBaseSize(QtCore.QSize(120, 40))
+        self.test_file_button.setMinimumSize(QtCore.QSize(80, 40))
         self.test_file_button.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
                                               "QPushButton:hover {background-color: #2A4BA0;}\n"
                                               "QPushButton:pressed {background-color: #1E3C8C;}")
         self.horizontalLayout.addWidget(self.test_file_button)
         # Create Button to access webcam for testing
         self.test_webcam_button = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.openWebcam())
-        self.test_webcam_button.setMinimumSize(QtCore.QSize(120, 40))
-        self.test_webcam_button.setBaseSize(QtCore.QSize(120, 40))
+        self.test_webcam_button.setMinimumSize(QtCore.QSize(80, 40))
         self.test_webcam_button.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
                                               "QPushButton:hover {background-color: #2A4BA0;}\n"
                                               "QPushButton:pressed {background-color: #1E3C8C;}")
         self.horizontalLayout.addWidget(self.test_webcam_button)
+        # Create Button to access webcam for live testing
+        self.test_live_button = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.openLivecam())
+        self.test_live_button.setMinimumSize(QtCore.QSize(80, 40))
+        self.test_live_button.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
+                                              "QPushButton:hover {background-color: #2A4BA0;}\n"
+                                              "QPushButton:pressed {background-color: #1E3C8C;}")
+        self.horizontalLayout.addWidget(self.test_live_button)
        
         self.test_button_title = QtWidgets.QLabel(self.test)
         self.test_button_title.setGeometry(QtCore.QRect(30, 30, 141, 16))
@@ -211,6 +215,12 @@ class Ui_MainWindow(object):
         self.test_image_title = QtWidgets.QLabel(self.test)
         self.test_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
         self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+
+        # Create a refresh clickable label
+        self.refresh_label = ClickableLabel(self.test)
+        self.refresh_label.setGeometry(QtCore.QRect(120, 140, 91, 16))
+        self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        self.refresh_label.clicked.connect(self.update_test_grid)
         
         self.tabWidget.addTab(self.test, "")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -226,8 +236,10 @@ class Ui_MainWindow(object):
 
         if file and file[0]:
             file_path = file[0][0]
+            # Print file path
             print(file[0][0])
             csv_to_images(file_path, 'images', 100, (28, 28))
+            # Add AI model to train the data set HERE
 
             # Clean the grid layout
             while self.data_grid.count():
@@ -291,6 +303,63 @@ class Ui_MainWindow(object):
                 self.test_grid.addWidget(ClickLabel, *position)  
 
             self.test_grid_widget.setLayout(self.test_grid)
+            self.update_test_grid()
+    
+    def update_test_grid(self):
+        # Add new images to the grid
+        file_path = 'test_images'
+        # Check if the file path exists
+        if not os.path.exists(file_path):
+            return
+
+        file_size = len(os.listdir(file_path))
+        # add the new images to the end of the grid
+        
+        while self.test_grid.count():
+            child = self.test_grid.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        
+        positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
+        for position, image in zip(positions, os.listdir('test_images')):
+            image_path = os.path.join('test_images', image)
+            # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
+            if not image.startswith('converted_'):
+                print("balls are every where you look")
+                img = Image.open(image_path)
+                # Convert to grayscale
+                img = img.convert('L')
+                # Resize to 28x28
+                img = img.resize((28, 28))
+                
+                left = int(img.size[0]/2-80/2)
+                upper = int(img.size[1]/2-80/2)
+                right = left +80
+                lower = upper + 80
+                # convert the image to 28 x 28 grey scale image
+                img.crop((left, upper,right,lower))
+                
+                # Overwrite the original image
+                img.save(image_path)
+
+            image_data = open(image_path, 'rb').read()  # Read image data as bytes
+            
+            # Create a ClickLabel to hold images  
+            ClickLabel = ClickableLabel()
+            ClickLabel.setFixedSize(90, 90)
+            # Create a QPixmap to display images                 
+            self.qp = QPixmap()
+            self.qp.loadFromData(image_data)
+            self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+            ClickLabel.setPixmap(self.qp)
+
+            # Connect the click signal
+            ClickLabel.clicked.connect(self.labelClicked)
+
+            # Add the ClickLabel to the GridLayout
+            self.test_grid.addWidget(ClickLabel, *position)  
+
+        self.test_grid_widget.setLayout(self.test_grid)
 
     # Function that opens another window 
     def startTraining(self):
@@ -309,6 +378,10 @@ class Ui_MainWindow(object):
         window.show()
         if app is None:
             sys.exit(app.exec_())
+
+    def openLivecam(self):
+        # Add live cam code here
+        pass
 
     # Function that runs when the label is clicked
     def labelClicked(self):
@@ -338,12 +411,22 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.train), _translate("MainWindow", "  Train  "))
         self.test_file_button.setText(_translate("MainWindow", "Select Dataset"))
         self.test_webcam_button.setText(_translate("MainWindow", "Open Webcam"))
+        self.test_live_button.setText(_translate("MainWindow", "Open Livecam"))
         self.test_button_title.setText(_translate("MainWindow", "Select Method to Test"))
         self.test_image_title.setText(_translate("MainWindow", "Data Set:"))
+        self.refresh_label.setText(_translate("MainWindow", "Refresh"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.test), _translate("MainWindow", "  Test  "))
 
 if __name__ == "__main__":
     import sys
+    #clear the images folder
+    if os.path.exists('images'):
+        for file in os.listdir('images'):
+            os.remove(os.path.join('images', file))
+    #clear the test_images folder
+    if os.path.exists('test_images'):
+        for file in os.listdir('test_images'):
+            os.remove(os.path.join('test_images', file))
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()

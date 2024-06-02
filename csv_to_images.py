@@ -42,12 +42,9 @@ def csv_to_images(csvfile, output_dir, num_images, image_shape=(28, 28)):
 
         # Save the image
         label = labels[random_index]
-        image_path = os.path.join(output_dir, f'image_{random_index}_label_{label}.png')
+        image_path = os.path.join(output_dir, f'converted_{random_index}_label_{label}.png')
         plt.savefig(image_path, bbox_inches='tight', pad_inches=0)
         plt.close()
         count += 1
 
     print(f"Images saved to {output_dir}")
-
-# Example usage:
-# csv_to_images("sign_mnist_alpha_digits_test_train.csv", 'images', 30)
