@@ -167,21 +167,23 @@ class Ui_MainWindow(object):
         self.test_button_frame.setStyleSheet("QFrame {background-color: #333333;}")
         self.test_button_frame.setFrameShape(QtWidgets.QFrame.Panel)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.test_button_frame)
-        # Create Button
-        self.data_file_button_1 = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.selectToTest())
-        self.data_file_button_1.setMinimumSize(QtCore.QSize(120, 40))
-        self.data_file_button_1.setBaseSize(QtCore.QSize(120, 40))
-        self.data_file_button_1.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
+        # Create Button to access files for testing
+        self.test_file_button = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.selectToTest())
+        self.test_file_button.setMinimumSize(QtCore.QSize(120, 40))
+        self.test_file_button.setBaseSize(QtCore.QSize(120, 40))
+        self.test_file_button.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
                                               "QPushButton:hover {background-color: #2A4BA0;}\n"
                                               "QPushButton:pressed {background-color: #1E3C8C;}")
-        self.horizontalLayout.addWidget(self.data_file_button_1)
-        self.data_file_button_2 = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.openWebcam())
-        self.data_file_button_2.setMinimumSize(QtCore.QSize(120, 40))
-        self.data_file_button_2.setBaseSize(QtCore.QSize(120, 40))
-        self.data_file_button_2.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
+        self.horizontalLayout.addWidget(self.test_file_button)
+        # Create Button to access webcam for testing
+        self.test_webcam_button = QtWidgets.QPushButton(self.test_button_frame, clicked= lambda: self.openWebcam())
+        self.test_webcam_button.setMinimumSize(QtCore.QSize(120, 40))
+        self.test_webcam_button.setBaseSize(QtCore.QSize(120, 40))
+        self.test_webcam_button.setStyleSheet("QPushButton {background-color: #345CC1; color: white; border: none; padding: 8px 16px;}\n"
                                               "QPushButton:hover {background-color: #2A4BA0;}\n"
                                               "QPushButton:pressed {background-color: #1E3C8C;}")
-        self.horizontalLayout.addWidget(self.data_file_button_2)
+        self.horizontalLayout.addWidget(self.test_webcam_button)
+        
         self.test_line = QtWidgets.QFrame(self.test)
         self.test_line.setGeometry(QtCore.QRect(30, 120, 540, 20))
         self.test_line.setMinimumSize(QtCore.QSize(540, 0))
@@ -264,7 +266,6 @@ class Ui_MainWindow(object):
         files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.jpg *.png)")
 
         if files: 
-            # Complete this shit later 
             self.selected_files = files
             for file in self.selected_files:
                 print(file)
@@ -303,8 +304,8 @@ class Ui_MainWindow(object):
         self.train_ratio_label.setText(_translate("MainWindow", "0                                                 50                                              99"))
         self.train_model_title.setText(_translate("MainWindow", "                                           Select Model"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.train), _translate("MainWindow", "  Train  "))
-        self.data_file_button_1.setText(_translate("MainWindow", "Select Dataset"))
-        self.data_file_button_2.setText(_translate("MainWindow", "Open Webcam"))
+        self.test_file_button.setText(_translate("MainWindow", "Select Dataset"))
+        self.test_webcam_button.setText(_translate("MainWindow", "Open Webcam"))
         self.test_button_title.setText(_translate("MainWindow", "Select Method to Test"))
         self.data_image_title_2.setText(_translate("MainWindow", "Data Set:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.test), _translate("MainWindow", "  Test  "))
