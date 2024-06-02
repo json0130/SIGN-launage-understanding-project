@@ -9,6 +9,8 @@ from PyQt5.QtCore import Qt, QSize
 from ASL_Training import Ui_training_session
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
+from ClickableQLabel import ClickableLabel
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -17,7 +19,7 @@ class Ui_MainWindow(object):
         MainWindow.setMinimumSize(QtCore.QSize(600, 800))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(-10, 0, 600, 800))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 600, 800))
         self.tabWidget.setMinimumSize(QtCore.QSize(600, 800))
         self.tabWidget.setMaximumSize(QtCore.QSize(600, 800))
         self.tabWidget.setAutoFillBackground(False)
@@ -183,43 +185,33 @@ class Ui_MainWindow(object):
                                               "QPushButton:hover {background-color: #2A4BA0;}\n"
                                               "QPushButton:pressed {background-color: #1E3C8C;}")
         self.horizontalLayout.addWidget(self.test_webcam_button)
-        
-        self.test_line = QtWidgets.QFrame(self.test)
-        self.test_line.setGeometry(QtCore.QRect(30, 120, 540, 20))
-        self.test_line.setMinimumSize(QtCore.QSize(540, 0))
-        self.test_line.setFrameShape(QtWidgets.QFrame.HLine)        
+       
         self.test_button_title = QtWidgets.QLabel(self.test)
         self.test_button_title.setGeometry(QtCore.QRect(30, 30, 141, 16))
         self.test_button_title.setStyleSheet("QLabel {color: white; font-weight: bold;}")
 
-        self.frame_4 = QtWidgets.QFrame(self.test)
-        self.frame_4.setGeometry(QtCore.QRect(30, 160, 541, 551))
-        self.frame_4.setMinimumSize(QtCore.QSize(540, 0))
-        self.frame_4.setStyleSheet("QFrame {background-color: #333333;}")
-        self.frame_4.setFrameShape(QtWidgets.QFrame.Box)
+        # Create Scroll Area 
+        self.test_scroll = QtWidgets.QScrollArea(self.test)
+        self.test_scroll.setGeometry(QtCore.QRect(30, 160, 541, 551))
+        self.test_scroll.setWidgetResizable(True)
+        self.test_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.test_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.frame_4)
-        self.gridLayout = QtWidgets.QGridLayout()
-        self.horizontalLayout_4.addLayout(self.gridLayout)
-        self.data_scroll_2 = QtWidgets.QScrollBar(self.frame_4)
-        self.data_scroll_2.setStyleSheet("QScrollBar:vertical {background: #333333; width: 15px; margin: 22px 0 22px 0;}\n"
-                                         "QScrollBar::handle:vertical {background: #545454; min-height: 20px; border-radius: 5px;}\n"
-                                         "QScrollBar::add-line:vertical {background: #333333; height: 20px; subcontrol-position: bottom; subcontrol-origin: margin;}\n"
-                                         "QScrollBar::sub-line:vertical {background: #333333; height: 20px; subcontrol-position: top; subcontrol-origin: margin;}\n"
-                                         "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {width: 3px; height: 3px; background: white;}\n"
-                                         "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}")
-        self.data_scroll_2.setOrientation(QtCore.Qt.Vertical)
-        self.horizontalLayout_4.addWidget(self.data_scroll_2)
-        # Create a Frame
-        self.data_image_title_2 = QtWidgets.QLabel(self.test)
-        self.data_image_title_2.setGeometry(QtCore.QRect(30, 140, 91, 16))
-        self.data_image_title_2.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        # Create a widget to hold the grid layout 
+        self.test_grid_widget = QtWidgets.QWidget()
+        # Create a GridLayout
+        self.test_grid = QtWidgets.QGridLayout()
+        self.test_grid.setSpacing(10)
+        # Put the GridLayout in the Frame
+        self.test_scroll.setWidget(self.test_grid_widget)
+
+        # Create a Title for the Scroll area
+        self.test_image_title = QtWidgets.QLabel(self.test)
+        self.test_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
+        self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        
         self.tabWidget.addTab(self.test, "")
         MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        MainWindow.setStatusBar(self.statusbar)
-        self.actionsave = QtWidgets.QAction(MainWindow)
-        self.actionopen = QtWidgets.QAction(MainWindow)
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -260,15 +252,43 @@ class Ui_MainWindow(object):
 
             self.grid_widget.setLayout(self.data_grid)       
                  
-	# Funtion to upload files for data set 
+	# Funtion to upload files for test set 
     def selectToTest(self):
-        #accessing the file path to pictures
-        files,_ = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.jpg *.png)")
+         #accessing the file path to pictures
+        file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
 
-        if files: 
-            self.selected_files = files
-            for file in self.selected_files:
-                print(file)
+        if file and file[0]:
+            file_path = file[0][0]
+            print(file[0][0])
+            csv_to_images(file_path, 'test_images', 100, (28, 28))
+
+            # Clean the grid layout
+            while self.test_grid.count():
+                child = self.test_grid.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
+            positions = [(i, j) for i in range(25) for j in range(4)]
+            for position, image in zip(positions, os.listdir('test_images')):
+                image_path = os.path.join('test_images', image)
+                image_data = open(image_path, 'rb').read()  # Read image data as bytes
+                
+                # Create a ClickLabel to hold images  
+                ClickLabel = ClickableLabel()
+                ClickLabel.setFixedSize(90, 90)
+                # Create a QPixmap to display images                 
+                self.qp = QPixmap()
+                self.qp.loadFromData(image_data)
+                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+                ClickLabel.setPixmap(self.qp)
+
+                # Connect the click signal
+                ClickLabel.clicked.connect(self.labelClicked)
+
+                 # Add the ClickLabel to the GridLayout
+                self.test_grid.addWidget(ClickLabel, *position)  
+
+            self.test_grid_widget.setLayout(self.test_grid)
 
     # Function that opens another window 
     def startTraining(self):
@@ -287,6 +307,9 @@ class Ui_MainWindow(object):
         window.show()
         if app is None:
             sys.exit(app.exec_())
+
+    def labelClicked(self):
+        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -307,13 +330,8 @@ class Ui_MainWindow(object):
         self.test_file_button.setText(_translate("MainWindow", "Select Dataset"))
         self.test_webcam_button.setText(_translate("MainWindow", "Open Webcam"))
         self.test_button_title.setText(_translate("MainWindow", "Select Method to Test"))
-        self.data_image_title_2.setText(_translate("MainWindow", "Data Set:"))
+        self.test_image_title.setText(_translate("MainWindow", "Data Set:"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.test), _translate("MainWindow", "  Test  "))
-        self.actionsave.setText(_translate("MainWindow", "save"))
-        self.actionsave.setStatusTip(_translate("MainWindow", "Save the current file"))
-        self.actionsave.setShortcut(_translate("MainWindow", "Ctrl+S"))
-        self.actionopen.setText(_translate("MainWindow", "open"))
-        self.actionopen.setStatusTip(_translate("MainWindow", "Open a file"))
 
 if __name__ == "__main__":
     import sys
