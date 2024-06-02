@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
+from PyQt5.QtCore import Qt, QSize
 from ASL_Training import Ui_training_session
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
@@ -25,17 +26,21 @@ class Ui_MainWindow(object):
                                      "QTabBar::tab:selected { background: #1F1F1F; color: #FFFFFF;}")
         
 # =================================|| Data Tab ||=================================
+        # Create a Tab for Data
         self.tabWidget.setTabShape(QtWidgets.QTabWidget.Rounded)
         self.tabWidget.setDocumentMode(False)
-        self.load = QtWidgets.QWidget()
+        self.load = QtWidgets.QWidget() 
+        # Create a Frame for buttons
         self.Data_button_frame = QtWidgets.QFrame(self.load)
         self.Data_button_frame.setGeometry(QtCore.QRect(30, 50, 540, 60))
         self.Data_button_frame.setMinimumSize(QtCore.QSize(540, 0))
         self.Data_button_frame.setStyleSheet("QFrame {background-color: #333333;}")
         self.Data_button_frame.setFrameShape(QtWidgets.QFrame.Panel)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.Data_button_frame)
+
         spacerItem = QtWidgets.QSpacerItem(191, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
+        # Create Button
         self.data_file_button = QtWidgets.QPushButton(self.Data_button_frame, clicked= lambda: self.uploadFiles())
         self.data_file_button.setMinimumSize(QtCore.QSize(120, 40))
         self.data_file_button.setBaseSize(QtCore.QSize(120, 40))
@@ -52,31 +57,22 @@ class Ui_MainWindow(object):
         self.data_image_title = QtWidgets.QLabel(self.load)
         self.data_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
         self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
-        # Create a Frame
-        self.display_frame = QtWidgets.QFrame(self.load)
-        self.display_frame.setFrameShape(QtWidgets.QFrame.Box) 
-        self.display_frame.setGeometry(QtCore.QRect(30, 160, 541, 551))
-        self.display_frame.setMinimumSize(QtCore.QSize(540, 0))
-        self.display_frame.setStyleSheet("QFrame {background-color: #333333;}")
 
-        #insert the code into here
+        # Create Scroll Area
+        self.scroll = QtWidgets.QScrollArea(self.load)
+        self.scroll.setGeometry(QtCore.QRect(30, 160, 541, 551))
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        # # Create Scroll Area
-        # self.scroll = QtWidgets.QScrollArea()
-        # self.scroll.setWidget(self.display_frame)
-        # self.scroll.setWidgetResizable(False)
-        # # Create Scroll Bar
-        # self.data_scroll = self.scroll.verticalScrollBar()
-        # self.data_scroll.setStyleSheet("QScrollBar:vertical {background: #333333; width: 15px; margin: 22px 0 22px 0;}\n"
-        #                                "QScrollBar::handle:vertical {background: #545454; min-height: 20px; border-radius: 5px;}\n"
-        #                                "QScrollBar::add-line:vertical {background: #333333; height: 20px; subcontrol-position: bottom; subcontrol-origin: margin;}\n"
-        #                                "QScrollBar::sub-line:vertical {background: #333333; height: 20px; subcontrol-position: top; subcontrol-origin: margin;}\n"
-        #                                "QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {width: 3px; height: 3px; background: white;}\n"
-        #                                "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {background: none;}")
-        # # Create a QVBoxLayout
-        # self.layout = QtWidgets.QVBoxLayout()
-        # # Add the Scroll Area to the Layout
-        # self.layout.addWidget(self.scroll)
+        # Create a widget to hold the grid layout 
+        self.grid_widget = QtWidgets.QWidget()
+        # Create a GridLayout
+        self.data_grid = QtWidgets.QGridLayout()
+        self.data_grid.setSpacing(10)
+        # Put the GridLayout in the Frame
+        self.scroll.setWidget(self.grid_widget)
+    
 # =================================|| Train Tab ||=================================
 
         self.tabWidget.addTab(self.load, "")
@@ -229,43 +225,39 @@ class Ui_MainWindow(object):
 
     # Function to upload files for data set
     def uploadFiles(self):
-        # Create a GridLayout
-        self.data_display = QtWidgets.QGridLayout()
-        # Put the GridLayout in the Frame
-        self.display_frame.setLayout(self.data_display)
-
         #accessing the file path to pictures
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
 
         if file and file[0]:
             file_path = file[0][0]
             print(file[0][0])
-            csv_to_images(file_path, 'images', 30, (28, 28))
+            csv_to_images(file_path, 'images', 100, (28, 28))
+
+            # Clean the grid layout
+            while self.data_grid.count():
+                child = self.data_grid.takeAt(0)
+                if child.widget():
+                    child.widget().deleteLater()
+
             positions = [(i, j) for i in range(8) for j in range(4)]
             for position, image in zip(positions, os.listdir('images')):
-                print("monke")
                 image_path = os.path.join('images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
-                # Create a QVBoxLayout
-                vBox = QtWidgets.QVBoxLayout()
+                
+                # Create a QLabel to hold images  
                 QLabel = QtWidgets.QLabel()
-                QLabel.setFixedHeight(150) 
-                QLabel.setFixedWidth(150)
-                # Create a QPixmap to hold images                 
+                QLabel.setFixedSize(90, 90)
+                # Create a QPixmap to display images                 
                 self.qp = QPixmap()
                 self.qp.loadFromData(image_data)
-                self.qp = self.qp.scaled(150, 150, QtCore.Qt.KeepAspectRatio)
-                # Setting the image to the QLabel
+                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
                 QLabel.setPixmap(self.qp)
-                # Adding the QLabel to the QVBoxLayout
-                vBox.addWidget(QLabel)
-                # Adding the QVBoxLayout to the GridLayout
-                self.data_display.addLayout(vBox, *position)   
-            
-            # Put the GridLayout in the Frame
-            self.display_frame.setLayout(self.data_display)           
-                
-        
+
+                 # Add the QLabel to the GridLayout
+                self.data_grid.addWidget(QLabel, *position)  
+
+            self.grid_widget.setLayout(self.data_grid)       
+                 
 	# Funtion to upload files for data set 
     def selectToTest(self):
         #accessing the file path to pictures
@@ -321,7 +313,6 @@ class Ui_MainWindow(object):
         self.actionsave.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.actionopen.setText(_translate("MainWindow", "open"))
         self.actionopen.setStatusTip(_translate("MainWindow", "Open a file"))
-
 
 if __name__ == "__main__":
     import sys

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import random
 
 def csv_to_images(csvfile, output_dir, num_images, image_shape=(28, 28)):
      # Create the output directory if it doesn't exist
