@@ -1,0 +1,8 @@
+It provides information about the dependencies.
+
+numpy==1.24.4
+PyQt5==5.15.10
+opcencv-python==4.7.0
+pandas==1.3.4
+matplotlib==3.4.2
+scikit-learn==0.24.2
