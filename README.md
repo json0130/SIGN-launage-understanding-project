@@ -37,12 +37,12 @@ To set up and run the Sign Language Understanding Project, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/your-username/sign-language-understanding.git
+   git clone https://github.com/COMPSYS302/project-python-sunshine-group-23.git
    ```
 
 2. Navigate to the project directory:
    ```
-   cd sign-language-understanding
+   cd project-python-sunshine-group-23
    ```
 
 3. Install the required dependencies:
@@ -50,17 +50,14 @@ To set up and run the Sign Language Understanding Project, follow these steps:
    pip install -r requirements.txt
    ```
 
-4. Collect and prepare the sign language dataset. Ensure that the dataset is properly labeled and organized.
-
-5. Train the models by running the following command:
+4. Run the PYQT using the following command:
    ```
-   python train.py
+   python3 CNN_project.py
    ```
 
-6. Once the models are trained, you can launch the application:
-   ```
-   python main.py
-   ```
+5. Once you launch the application, you can choose the preferred training model
+6. Select the preferred setting and start the training.
+7. Now you can test your model using the dataset image or using the webcam.
 
 ## Usage
 
@@ -68,7 +65,7 @@ To set up and run the Sign Language Understanding Project, follow these steps:
 
 2. Ensure that your webcam is connected and functioning properly.
 
-3. Position yourself in front of the webcam, making sure your hands are visible.
+3. Position yourself in front of the webcam, ensuring your hands are visible.
 
 4. Perform sign language gestures; the application will analyze and interpret them in real-time.
 
