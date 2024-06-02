@@ -5,8 +5,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from ASL_Training import Ui_training_session
+from ASL_Results import Ui_Results
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel
@@ -17,6 +18,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 800)
         MainWindow.setMinimumSize(QtCore.QSize(600, 800))
+        MainWindow.setStyleSheet("QMainWindow {background: #4d4d4d;}\n")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setGeometry(QtCore.QRect(0, 0, 600, 800))
@@ -308,7 +310,14 @@ class Ui_MainWindow(object):
         if app is None:
             sys.exit(app.exec_())
 
+    # Function that runs when the label is clicked
     def labelClicked(self):
+        # add any training related code here 
+
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_Results()
+        self.ui.setupUi(self.window)
+        self.window.show()
         
 
     def retranslateUi(self, MainWindow):
