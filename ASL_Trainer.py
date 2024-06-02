@@ -239,7 +239,7 @@ class Ui_MainWindow(object):
                 if child.widget():
                     child.widget().deleteLater()
 
-            positions = [(i, j) for i in range(8) for j in range(4)]
+            positions = [(i, j) for i in range(25) for j in range(4)]
             for position, image in zip(positions, os.listdir('images')):
                 image_path = os.path.join('images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
