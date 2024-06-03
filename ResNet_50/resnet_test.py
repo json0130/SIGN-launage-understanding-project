@@ -18,6 +18,9 @@ while True:
     
     if not ret:
         break
+
+    # flip the frame horizontally
+    frame = cv2.flip(frame, 1)
     
     # Preprocess the frame for display
     display_frame = frame.copy()
