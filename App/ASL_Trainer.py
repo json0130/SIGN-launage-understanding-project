@@ -18,17 +18,33 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 800)
-        MainWindow.setMinimumSize(QtCore.QSize(600, 800))
+        MainWindow.setMinimumSize(QtCore.QSize(600, 880))
         MainWindow.setStyleSheet("QMainWindow {background: #4d4d4d;}\n")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 600, 800))
-        self.tabWidget.setMinimumSize(QtCore.QSize(600, 800))
-        self.tabWidget.setMaximumSize(QtCore.QSize(600, 800))
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 600, 880))
+        self.tabWidget.setMinimumSize(QtCore.QSize(600, 880))
+        self.tabWidget.setMaximumSize(QtCore.QSize(600, 880))
         self.tabWidget.setAutoFillBackground(False)
         self.tabWidget.setStyleSheet("QTabWidget::pane { border: 1px solid #1F1F1F; background: #1F1F1F;}\n"
                                      "QTabBar::tab { background: #333333; color: #ffffff; padding: 10px;}\n"
                                      "QTabBar::tab:selected { background: #1F1F1F; color: #FFFFFF;}")
+        # Creating a tool bar 
+        toolbar = QToolBar("Camera Tool Bar") 
+        toolbar.setStyleSheet("QToolBar { background: #333333; color: white; }"
+                              "QToolBar::separator { background: white; }"
+                              "QToolButton { background: #333333; color: white; border: none; padding: 5px; }"
+                              "QToolButton:hover { background: #4d4d4d; }"
+                              "QToolButton:pressed { background: #1F1F1F; }")
+        MainWindow.addToolBar(toolbar)
+
+        # Creat photo action
+        load_action = QAction("Load Model", MainWindow) 
+        load_action.setStatusTip("This will load a model") 
+        load_action.setToolTip("Load Model") 
+        load_action.triggered.connect(self.loadModel) 
+        # Add to tool bar 
+        toolbar.addAction(load_action) 
         
 # =================================|| Data Tab ||=================================
         # Create a Tab for Data
@@ -228,6 +244,10 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 # =================================|| Functions ||=================================
+    # Function to load model
+    def loadModel(self):
+        file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
+
 
     # Function to upload files for data set
     def uploadFiles(self):
@@ -385,13 +405,14 @@ class Ui_MainWindow(object):
 
     # Function that runs when the label is clicked
     def labelClicked(self):
-        # add any training related code here 
+        
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_Results()
-        self.ui.setupUi(self.window)
+        self.ui.setupUi(self.window, )
         self.window.show()
-        
+
+# =================================|| UI ||=================================
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
