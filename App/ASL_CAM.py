@@ -12,7 +12,7 @@ import numpy as np
 class Camera(QMainWindow): 
     def __init__(self): 
         super().__init__() 
-        self.setGeometry(100, 100, 800, 600) 
+        self.setGeometry(100, 100, 880, 600) 
         self.setStyleSheet("background : #333333;") 
         # Get available cameras 
         self.available_cameras = QCameraInfo.availableCameras() 
