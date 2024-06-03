@@ -1,5 +1,6 @@
 import os
 import math
+import resnet_app_test
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -10,7 +11,7 @@ from ASL_Training import Ui_training_session
 from ASL_Results import Ui_Results
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
-from ClickableQLabel import ClickableLabel
+from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
 
 
@@ -179,6 +180,7 @@ class Ui_MainWindow(object):
         self.train_line_top.setGeometry(QtCore.QRect(30, 160, 531, 16))
         self.train_line_top.setFrameShape(QtWidgets.QFrame.HLine)
 # =================================|| Test Tab ||=================================
+
         self.tabWidget.addTab(self.train, "")
         self.test = QtWidgets.QWidget()
         self.test_button_frame = QtWidgets.QFrame(self.test)
@@ -233,7 +235,7 @@ class Ui_MainWindow(object):
         self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
 
         # Create a refresh clickable label
-        self.refresh_label = ClickableLabel(self.test)
+        self.refresh_label = ClickLabel(self.test)
         self.refresh_label.setGeometry(QtCore.QRect(120, 140, 91, 16))
         self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
         self.refresh_label.clicked.connect(self.update_test_grid)
@@ -308,7 +310,7 @@ class Ui_MainWindow(object):
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
                 
                 # Create a ClickLabel to hold images  
-                ClickLabel = ClickableLabel()
+                ClickLabel = ClickableLabel(image_path)
                 ClickLabel.setFixedSize(90, 90)
                 # Create a QPixmap to display images                 
                 self.qp = QPixmap()
@@ -319,7 +321,7 @@ class Ui_MainWindow(object):
                 # Connect the click signal
                 ClickLabel.clicked.connect(self.labelClicked)
 
-                 # Add the ClickLabel to the GridLayout
+                # Add the ClickLabel to the GridLayout
                 self.test_grid.addWidget(ClickLabel, *position)  
 
             self.test_grid_widget.setLayout(self.test_grid)
@@ -365,7 +367,7 @@ class Ui_MainWindow(object):
             image_data = open(image_path, 'rb').read()  # Read image data as bytes
             
             # Create a ClickLabel to hold images  
-            ClickLabel = ClickableLabel()
+            ClickLabel = ClickableLabel(image_path)
             ClickLabel.setFixedSize(90, 90)
             # Create a QPixmap to display images                 
             self.qp = QPixmap()
@@ -404,12 +406,15 @@ class Ui_MainWindow(object):
         pass
 
     # Function that runs when the label is clicked
-    def labelClicked(self):
-        
+    def labelClicked(self, object_path):
+        print("clicked")
+        print(object_path)
+        print("clicked")
+        results = resnet_app_test.predict_image(object_path)
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_Results()
-        self.ui.setupUi(self.window, )
+        self.ui.setupUi(self.window, object_path, results)
         self.window.show()
 
 # =================================|| UI ||=================================
