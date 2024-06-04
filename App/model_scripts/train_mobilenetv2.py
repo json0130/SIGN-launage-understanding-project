@@ -76,7 +76,7 @@ class ASLDataset(Dataset):
 
 def train(batch_size, num_epochs, train_test_ratio):
     print("Commencing training for MobileNet_v2")
-    print(f"Batch size: {batch_size}, Epochs: {epochs}, Train/Test ratio: {train_test_ratio}")
+    print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
     # Load the dataset
     data = pd.read_csv('../dataset.csv', low_memory=False)
     print(f"Loaded dataset")

@@ -16,30 +16,6 @@ from PIL import Image
 
 from model_scripts import train_mobilenetv2
 
-# import subprocess
-
-
-# class TrainingWorker(QThread):
-#     finished = pyqtSignal(str, str)
-#     # TODO: progress = pyqtSignal(str)
-
-#     def __init__(self, script_path, batch_size, epochs, train_test_ratio):
-#         super().__init__()
-#         self.script_path = script_path
-#         self.batch_size = batch_size
-#         self.epochs = epochs
-#         self.train_test_ratio = train_test_ratio
-
-#     def run(self):
-#         process = subprocess.Popen(['python', self.script_path, str(self.batch_size), str(self.epochs), str(self.train_test_ratio)],
-#                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#         stdout, stderr = process.communicate()
-        
-#         if process.returncode == 0:
-#             self.finished.emit(stdout.decode(), "")
-#         else:
-#             self.finished.emit("", stderr.decode())
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -436,7 +412,8 @@ class Ui_MainWindow(object):
         train_test_ratio = self.train_slider.value() / 100.0
         
         # Run the training function directly
-        train_function(batch_size, epochs, train_test_ratio)
+        #train_function(batch_size, epochs, train_test_ratio)
+        script_path(batch_size, epochs, train_test_ratio)
 
         # Optionally, show training session window to indicate training progress
         self.window = QtWidgets.QMainWindow()
