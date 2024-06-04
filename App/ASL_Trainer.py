@@ -14,7 +14,7 @@ from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
 
-from model_scripts import train_mobilenetv2
+from model_scripts import train_mobilenetv2, train_inceptionv3
 
 
 
@@ -188,7 +188,7 @@ class Ui_MainWindow(object):
         
         # Mapping model names to script paths
         self.model_scripts = {
-            "InceptionV3": "../Inception_v3/Inception_v3.py",
+            "InceptionV3": train_inceptionv3.train,
             "MobileNet_V2": train_mobilenetv2.train,
             "ResNet_50": "../ResNet_50/train.py",
             "Sunshine23": "../Sunshine23/sunshine23.py"
