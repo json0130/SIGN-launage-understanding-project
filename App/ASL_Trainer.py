@@ -13,6 +13,7 @@ from ASL_CAM import Camera
 from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
+import subprocess
 
 
 class Ui_MainWindow(object):
@@ -400,10 +401,31 @@ class Ui_MainWindow(object):
 
     # Function that opens another window 
     def startTraining(self):
+        # Get selected model
+        selected_model = self.train_combobox.currentText()
+        script_path = self.model_scripts[selected_model]
+        
+        # Get training parameters
+        batch_size = self.train_batch.value()
+        epochs = self.train_epoch.value()
+        train_test_ratio = self.train_slider.value() / 100.0
+        
+        # Run the selected script with parameters
+        process = subprocess.Popen(['python', script_path, str(batch_size), str(epochs), str(train_test_ratio)],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0:
+            print("Training completed successfully")
+            print(stdout.decode())
+        else:
+            print("Error during training")
+            print(stderr.decode())
+        
+        # Open the training session window to show progress
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_training_session()
-        # !!! Add the model data to the training session in place of the 5 !!!
-        self.ui.setupUi(self.window, 5)
+        self.ui.setupUi(self.window, (batch_size, epochs, train_test_ratio, selected_model))
         self.window.show()
 
     def openWebcam(self):
