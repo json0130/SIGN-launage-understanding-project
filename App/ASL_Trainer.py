@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtMultimedia import *
 from PyQt5.QtMultimediaWidgets import *
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QThread
 from ASL_Training import Ui_training_session
 from ASL_Results import Ui_Results
 from ASL_CAM import Camera
@@ -14,6 +14,28 @@ from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
 import subprocess
+
+
+class TrainingWorker(QThread):
+    finished = pyqtSignal(str, str)
+    # TODO: progress = pyqtSignal(str)
+
+    def __init__(self, script_path, batch_size, epochs, train_test_ratio):
+        super().__init__()
+        self.script_path = script_path
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.train_test_ratio = train_test_ratio
+
+    def run(self):
+        process = subprocess.Popen(['python', self.script_path, str(self.batch_size), str(self.epochs), str(self.train_test_ratio)],
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = process.communicate()
+        
+        if process.returncode == 0:
+            self.finished.emit(stdout.decode(), "")
+        else:
+            self.finished.emit("", stderr.decode())
 
 
 class Ui_MainWindow(object):
@@ -415,22 +437,23 @@ class Ui_MainWindow(object):
         epochs = self.train_epoch.value()
         train_test_ratio = self.train_slider.value() / 100.0
         
-        # Run the selected script with parameters
-        process = subprocess.Popen(['python', script_path, str(batch_size), str(epochs), str(train_test_ratio)],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
-        
-        if process.returncode == 0:
+        # Create and start the worker thread
+        self.worker = TrainingWorker(script_path, batch_size, epochs, train_test_ratio)
+        self.worker.finished.connect(self.onTrainingFinished)
+        self.worker.start()
+
+    def onTrainingFinished(self, stdout, stderr):
+        if stdout:
             print("Training completed successfully")
-            print(stdout.decode())
-        else:
+            print(stdout)
+        if stderr:
             print("Error during training")
-            print(stderr.decode())
+            print(stderr)
         
         # Open the training session window to show progress
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_training_session()
-        self.ui.setupUi(self.window, (batch_size, epochs, train_test_ratio, selected_model))
+        self.ui.setupUi(self.window, (self.train_batch.value(), self.train_epoch.value(), self.train_slider.value() / 100.0, self.train_combobox.currentText()))
         self.window.show()
 
     def openWebcam(self):

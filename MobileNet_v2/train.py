@@ -85,7 +85,7 @@ def main():
    # Create datasets and data loaders
    train_dataset = ASLDataset(train_data, transform=data_transform)
    test_dataset = ASLDataset(test_data, transform=data_transform)
-   batch_size = 256
+   batch_size = 64
 
 
    num_cores = os.cpu_count()
