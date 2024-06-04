@@ -75,7 +75,7 @@ class ASLDataset(Dataset):
 
 def main():
    # Load the dataset
-   data = pd.read_csv('dataset.csv', low_memory=False)
+   data = pd.read_csv('../dataset.csv', low_memory=False)
 
 
    # Split the dataset into train and test
