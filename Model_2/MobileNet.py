@@ -30,15 +30,13 @@ class ASLModel(nn.Module):
 
 
 # Prepare data generator for standardizing frames before sending them into the model
-# Prepare data generator for standardizing frames before sending them into the model
 data_transform = transforms.Compose([
-   transforms.ToPILImage(),  # Convert the image to a PIL image
-   transforms.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-   transforms.RandomRotation(10),  # Randomly rotate the image by up to 10 degrees
-   transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),  # Randomly crop the image and resize to 224x224
-   transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Randomly change brightness, contrast, saturation, and hue
-   transforms.ToTensor(),  # Convert the image to a tensor
-   transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize the image
+    transforms.ToTensor(),
+    transforms.Resize((224, 224)),  # Resize for MobileNet
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.RandomCrop(200),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 
@@ -87,7 +85,7 @@ def main():
    # Create datasets and data loaders
    train_dataset = ASLDataset(train_data, transform=data_transform)
    test_dataset = ASLDataset(test_data, transform=data_transform)
-   batch_size = 256  # Recommended batch size for MobileNet
+   batch_size = 256
 
 
    num_cores = os.cpu_count()
