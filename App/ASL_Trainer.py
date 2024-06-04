@@ -13,29 +13,32 @@ from ASL_CAM import Camera
 from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
-import subprocess
+
+from model_scripts import train_mobilenetv2
+
+# import subprocess
 
 
-class TrainingWorker(QThread):
-    finished = pyqtSignal(str, str)
-    # TODO: progress = pyqtSignal(str)
+# class TrainingWorker(QThread):
+#     finished = pyqtSignal(str, str)
+#     # TODO: progress = pyqtSignal(str)
 
-    def __init__(self, script_path, batch_size, epochs, train_test_ratio):
-        super().__init__()
-        self.script_path = script_path
-        self.batch_size = batch_size
-        self.epochs = epochs
-        self.train_test_ratio = train_test_ratio
+#     def __init__(self, script_path, batch_size, epochs, train_test_ratio):
+#         super().__init__()
+#         self.script_path = script_path
+#         self.batch_size = batch_size
+#         self.epochs = epochs
+#         self.train_test_ratio = train_test_ratio
 
-    def run(self):
-        process = subprocess.Popen(['python', self.script_path, str(self.batch_size), str(self.epochs), str(self.train_test_ratio)],
-                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = process.communicate()
+#     def run(self):
+#         process = subprocess.Popen(['python', self.script_path, str(self.batch_size), str(self.epochs), str(self.train_test_ratio)],
+#                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#         stdout, stderr = process.communicate()
         
-        if process.returncode == 0:
-            self.finished.emit(stdout.decode(), "")
-        else:
-            self.finished.emit("", stderr.decode())
+#         if process.returncode == 0:
+#             self.finished.emit(stdout.decode(), "")
+#         else:
+#             self.finished.emit("", stderr.decode())
 
 
 class Ui_MainWindow(object):
@@ -193,7 +196,7 @@ class Ui_MainWindow(object):
         # Mapping model names to script paths
         self.model_scripts = {
             "InceptionV3": "../Inception_v3/Inception_v3.py",
-            "MobileNet_V2": "../MobileNet_v2/train.py",
+            "MobileNet_V2": train_mobilenetv2.train,
             "ResNet_50": "../ResNet_50/train.py",
             "Sunshine23": "../Sunshine23/sunshine23.py"
         }
@@ -427,20 +430,19 @@ class Ui_MainWindow(object):
         selected_model = self.train_combobox.currentText()
         script_path = self.model_scripts[selected_model]
 
-        # Check if the script path exists
-        if not os.path.isfile(script_path):
-            print(f"Error: Script file does not exist at path: {script_path}")
-            return
-        
         # Get training parameters
         batch_size = self.train_batch.value()
         epochs = self.train_epoch.value()
         train_test_ratio = self.train_slider.value() / 100.0
         
-        # Create and start the worker thread
-        self.worker = TrainingWorker(script_path, batch_size, epochs, train_test_ratio)
-        self.worker.finished.connect(self.onTrainingFinished)
-        self.worker.start()
+        # Run the training function directly
+        train_function(batch_size, epochs, train_test_ratio)
+
+        # Optionally, show training session window to indicate training progress
+        self.window = QtWidgets.QMainWindow()
+        self.ui = Ui_training_session()
+        self.ui.setupUi(self.window, (batch_size, epochs, train_test_ratio, selected_model))
+        self.window.show()
 
     def onTrainingFinished(self, stdout, stderr):
         if stdout:
