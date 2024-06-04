@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import random
 
-def csv_to_images(csvfile, output_dir, num_images, image_shape=(28, 28)):
+def csv_to_images(csvfile, output_dir, image_shape=(28, 28), num_images_per_label=16):
     # Create the output directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -12,39 +12,40 @@ def csv_to_images(csvfile, output_dir, num_images, image_shape=(28, 28)):
     # Read the CSV file into a DataFrame
     df = pd.read_csv(csvfile)
 
-    if num_images == 0: 
-        num_images = df.shape[0]
-    else:
-        num_images = min(num_images, df.shape[0])
+    # Find all unique labels
+    unique_labels = df['label'].unique()
 
-    # Separate labels from pixel data
-    labels = df['label']
-    data = df.drop(columns=['label'])
+    total_images_saved = 0
 
-    # Normalize data if necessary (optional)
-    data = data.values
-    data = (data - data.min()) / (data.max() - data.min())  # Normalize to range 0-1
+    # Iterate over each unique label
+    for label in unique_labels:
+        # Select rows with the current label
+        label_rows = df[df['label'] == label].head(num_images_per_label)
 
-    count = 0
-    # Convert random rows into images and save them
-    while count < num_images:
-        # Choose a random index
-        random_index = random.randint(0, df.shape[0] - 1)
-        # Get the row at the random index
-        row = data[random_index]
-        # Reshape row into the specified image shape
-        image = row.reshape(image_shape)
+        # Separate labels from pixel data
+        labels = label_rows['label']
+        data = label_rows.drop(columns=['label'])
 
-        # Create the plot
-        plt.figure(figsize=(5, 5))
-        plt.imshow(image, cmap='gray')
-        plt.axis('off')  # Hide axes
+        # Normalize data if necessary (optional)
+        data = data.values
+        data = (data - data.min()) / (data.max() - data.min())  # Normalize to range 0-1
 
-        # Save the image
-        label = labels[random_index]
-        image_path = os.path.join(output_dir, f'converted_{random_index}_label_{label}.png')
-        plt.savefig(image_path, bbox_inches='tight', pad_inches=0)
-        plt.close()
-        count += 1
+        # Convert rows into images and save them
+        for index, row in enumerate(data):
+            # Reshape row into the specified image shape
+            image = row.reshape(image_shape)
+
+            # Create the plot
+            plt.figure(figsize=(5, 5))
+            plt.imshow(image, cmap='gray')
+            plt.axis('off')  # Hide axes
+
+            # Save the image
+            image_path = os.path.join(output_dir, f'label_{label}_index_{index}.png')
+            plt.savefig(image_path, bbox_inches='tight', pad_inches=0)
+            plt.close()
+
+        total_images_saved += len(data)
 
     print(f"Images saved to {output_dir}")
+    return total_images_saved

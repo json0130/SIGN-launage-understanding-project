@@ -1,5 +1,6 @@
 import os
 import math
+import resnet_app_test
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -10,7 +11,7 @@ from ASL_Training import Ui_training_session
 from ASL_Results import Ui_Results
 from ASL_CAM import Camera
 from csv_to_images import csv_to_images
-from ClickableQLabel import ClickableLabel
+from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
 
 
@@ -179,6 +180,7 @@ class Ui_MainWindow(object):
         self.train_line_top.setGeometry(QtCore.QRect(30, 160, 531, 16))
         self.train_line_top.setFrameShape(QtWidgets.QFrame.HLine)
 # =================================|| Test Tab ||=================================
+
         self.tabWidget.addTab(self.train, "")
         self.test = QtWidgets.QWidget()
         self.test_button_frame = QtWidgets.QFrame(self.test)
@@ -233,7 +235,7 @@ class Ui_MainWindow(object):
         self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
 
         # Create a refresh clickable label
-        self.refresh_label = ClickableLabel(self.test)
+        self.refresh_label = ClickLabel(self.test)
         self.refresh_label.setGeometry(QtCore.QRect(120, 140, 91, 16))
         self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
         self.refresh_label.clicked.connect(self.update_test_grid)
@@ -246,8 +248,7 @@ class Ui_MainWindow(object):
 # =================================|| Functions ||=================================
     # Function to load model
     def loadModel(self):
-        file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
-
+        self.model_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
 
     # Function to upload files for data set
     def uploadFiles(self):
@@ -258,7 +259,7 @@ class Ui_MainWindow(object):
             file_path = file[0][0]
             # Print file path
             print(file[0][0])
-            csv_to_images(file_path, 'images', 100, (28, 28))
+            number_of_images = csv_to_images(file_path, 'images', (28, 28))
             # Add AI model to train the data set HERE
 
             # Clean the grid layout
@@ -267,7 +268,9 @@ class Ui_MainWindow(object):
                 if child.widget():
                     child.widget().deleteLater()
 
-            positions = [(i, j) for i in range(25) for j in range(4)]
+            number_of_images = math.ceil(number_of_images/4)
+
+            positions = [(i, j) for i in range(number_of_images) for j in range(4)]
             for position, image in zip(positions, os.listdir('images')):
                 image_path = os.path.join('images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
@@ -294,7 +297,9 @@ class Ui_MainWindow(object):
         if file and file[0]:
             file_path = file[0][0]
             print(file[0][0])
-            csv_to_images(file_path, 'test_images', 100, (28, 28))
+            number_of_images = csv_to_images(file_path, 'test_images', (28, 28))
+
+            number_of_images = math.ceil(number_of_images/4)
 
             # Clean the grid layout
             while self.test_grid.count():
@@ -302,13 +307,13 @@ class Ui_MainWindow(object):
                 if child.widget():
                     child.widget().deleteLater()
 
-            positions = [(i, j) for i in range(25) for j in range(4)]
+            positions = [(i, j) for i in range(number_of_images) for j in range(4)]
             for position, image in zip(positions, os.listdir('test_images')):
                 image_path = os.path.join('test_images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
                 
                 # Create a ClickLabel to hold images  
-                ClickLabel = ClickableLabel()
+                ClickLabel = ClickableLabel(image_path)
                 ClickLabel.setFixedSize(90, 90)
                 # Create a QPixmap to display images                 
                 self.qp = QPixmap()
@@ -319,7 +324,7 @@ class Ui_MainWindow(object):
                 # Connect the click signal
                 ClickLabel.clicked.connect(self.labelClicked)
 
-                 # Add the ClickLabel to the GridLayout
+                # Add the ClickLabel to the GridLayout
                 self.test_grid.addWidget(ClickLabel, *position)  
 
             self.test_grid_widget.setLayout(self.test_grid)
@@ -344,7 +349,7 @@ class Ui_MainWindow(object):
         for position, image in zip(positions, os.listdir('test_images')):
             image_path = os.path.join('test_images', image)
             # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
-            if not image.startswith('converted_'):
+            if not image.startswith('label_'):
                 print("balls are every where you look")
                 img = Image.open(image_path)
                 # Convert to grayscale
@@ -365,7 +370,7 @@ class Ui_MainWindow(object):
             image_data = open(image_path, 'rb').read()  # Read image data as bytes
             
             # Create a ClickLabel to hold images  
-            ClickLabel = ClickableLabel()
+            ClickLabel = ClickableLabel(image_path)
             ClickLabel.setFixedSize(90, 90)
             # Create a QPixmap to display images                 
             self.qp = QPixmap()
@@ -385,7 +390,8 @@ class Ui_MainWindow(object):
     def startTraining(self):
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_training_session()
-        self.ui.setupUi(self.window)
+        # !!! Add the model data to the training session in place of the 5 !!!
+        self.ui.setupUi(self.window, 5)
         self.window.show()
 
     def openWebcam(self):
@@ -404,12 +410,15 @@ class Ui_MainWindow(object):
         pass
 
     # Function that runs when the label is clicked
-    def labelClicked(self):
-        
+    def labelClicked(self, object_path):
+        print("clicked")
+        print(object_path)
+        print("clicked")
+        results = resnet_app_test.predict_image(object_path)
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_Results()
-        self.ui.setupUi(self.window, )
+        self.ui.setupUi(self.window, object_path, results)
         self.window.show()
 
 # =================================|| UI ||=================================

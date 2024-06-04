@@ -7,18 +7,13 @@ import numpy as np
 
 class Ui_Results(object):
 
-    def setupUi(self, MainWindow, data):
+    def setupUi(self, MainWindow,image, data):
         MainWindow.resize(600, 800)
         MainWindow.setMinimumSize(QtCore.QSize(600, 800))
         MainWindow.setStyleSheet("QMainWindow {background: #4d4d4d;}\n")
         
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         MainWindow.setCentralWidget(self.centralwidget)
-        
-        self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(30, 20, 100, 16))
-        self.label.setStyleSheet("QLabel {color: white; font-weight: bold;}")
-        self.label.setText("Results:")
         
         self.layout = QVBoxLayout(self.centralwidget)
         self.layout.setGeometry(QtCore.QRect(30, 50, 540, 700))
@@ -30,7 +25,7 @@ class Ui_Results(object):
         self.layout.addWidget(self.toolbar)
         self.layout.addWidget(self.canvas)
 
-        self.plot(data)
+        self.plot(image, data)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -39,20 +34,24 @@ class Ui_Results(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ASL Results"))
 
-    def plot(self, data):
+    def plot(self, image, data):
         self.figure.clear()
-        image_data, bar_data = data
-
+        
+        # Load and display the image
+        image_data = plt.imread(image)
         ax1 = self.figure.add_subplot(211)
-        ax1.imshow(image_data, cmap='viridis')
+        ax1.imshow(image_data)
         ax1.set_title('Image')
-
-        ax2 = self.figure.add_subplot(212)
-        categories, values = bar_data
+        ax1.axis('off')  # Turn off axis
+        
+        # Plot the bar graph for predicted labels and probabilities
+        ax2 = self.figure.add_subplot(212)  
+        categories, values = zip(*data)
         ax2.bar(categories, values, color='blue')
-        ax2.set_title('Bar Graph')
-        ax2.set_ylabel('Values')
-
+        ax2.set_title('Predicted Labels and Probabilities')
+        ax2.set_ylabel('Probability')
+        ax2.set_xlabel('Labels')
+        
         self.canvas.draw()
 
 class MainWindow(QtWidgets.QMainWindow):
