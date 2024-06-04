@@ -170,7 +170,7 @@ class Ui_MainWindow(object):
         
         # Mapping model names to script paths
         self.model_scripts = {
-            "InceptionV3": "../Inception_V3/Inception_V3.py",
+            "InceptionV3": "../Inception_v3/Inception_v3.py",
             "MobileNet_V2": "../MobileNet_v2/train.py",
             "ResNet_50": "../ResNet_50/train.py",
             "Sunshine23": "../Sunshine23/sunshine23.py"
@@ -404,6 +404,11 @@ class Ui_MainWindow(object):
         # Get selected model
         selected_model = self.train_combobox.currentText()
         script_path = self.model_scripts[selected_model]
+
+        # Check if the script path exists
+        if not os.path.isfile(script_path):
+            print(f"Error: Script file does not exist at path: {script_path}")
+            return
         
         # Get training parameters
         batch_size = self.train_batch.value()
