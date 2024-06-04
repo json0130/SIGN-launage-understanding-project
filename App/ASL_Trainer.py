@@ -160,9 +160,21 @@ class Ui_MainWindow(object):
         self.train_model_frame.setStyleSheet("QFrame { background-color: #333333;}")
         self.train_model_frame.setFrameShape(QtWidgets.QFrame.Panel)
         self.gridLayout_3 = QtWidgets.QGridLayout(self.train_model_frame)
+
+        # model selection combobox
         self.train_combobox = QtWidgets.QComboBox(self.train_model_frame)
         self.train_combobox.setMinimumSize(QtCore.QSize(60, 30))
         self.gridLayout_3.addWidget(self.train_combobox, 2, 1, 1, 1)
+        self.train_combobox.addItems(["InceptionV3", "MobileNet_V2", "ResNet_50", "Sunshine23"])
+        
+        # Mapping model names to script paths
+        self.model_scripts = {
+            "InceptionV3": "../Inception_V3/Inception_V3.py",
+            "MobileNet_V2": "../MobileNet_v2/train.py",
+            "ResNet_50": "../ResNet_50/train.py",
+            "Sunshine23": "../Sunshine23/sunshine23.py"
+        }
+
         spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem6, 2, 7, 1, 1)
         spacerItem7 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
