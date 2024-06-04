@@ -19,6 +19,9 @@ class Ui_training_session(object):
         self.view_graph = QHBoxLayout()
         self.main_layout.addLayout(self.view_graph)
 
+        #GUI event loop
+        plt.ion()
+
         # Create a figure and canvas for the first plot
         self.figure1 = plt.figure()
         self.canvas1 = FigureCanvas(self.figure1)
@@ -94,9 +97,18 @@ class Ui_training_session(object):
         self.canvas1.draw()
         self.canvas2.draw()
 
-    def update_plot(self, data1, data2):
+    def update_plot(self, train_losses, val_accuracies, epoch):
         # Add code here to update the plot with new data
-        self.plot(data1, data2)
+        plt.figure()
+        plt.plot(train_losses, label='Training Loss')
+        plt.plot(val_accuracies, label='Validation Accuracy')
+        plt.legend()
+        plt.title(f'Epoch {epoch+1}')
+        plt.savefig('plot.png')
+        plt.close()
+
+        pixmap = QPixmap('plot.png')
+        self.view_graph.setPixmap(pixmap)
 
 if __name__ == "__main__":
     import sys

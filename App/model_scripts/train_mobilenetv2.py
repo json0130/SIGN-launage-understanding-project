@@ -9,8 +9,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
-from torchvision.models import mobilenet_v2
-from torchvision.models import MobileNet_V2_Weights
+from torchvision.models import mobilenet_v2, MobileNet_V2_Weights
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import argparse
@@ -74,7 +73,7 @@ class ASLDataset(Dataset):
        return image, label_idx
 
 
-def train(batch_size, num_epochs, train_test_ratio):
+def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):
     print("Commencing training for MobileNet_v2")
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
     # Load the dataset
@@ -146,8 +145,6 @@ def train(batch_size, num_epochs, train_test_ratio):
                 print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%")
         
         train_losses.append(running_loss / len(train_loader))
-
-
         print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
 
 
@@ -172,6 +169,8 @@ def train(batch_size, num_epochs, train_test_ratio):
 
         print(f"Accuracy on test set: {(correct / total) * 100}%")
 
+        if update_plot_signal:
+            update_plot_signal.emit(train_losses, val_accuracies, epoch)
 
     # save the trained model
     torch.save(model.state_dict(), 'asl_mobilenet_model.pth')

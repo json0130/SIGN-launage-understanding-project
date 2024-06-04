@@ -17,6 +17,23 @@ from PIL import Image
 from model_scripts import train_mobilenetv2
 
 
+
+class TrainingWorker(QThread):
+    update_plot = pyqtSignal(list, list, int)
+    finished = pyqtSignal()
+
+    def __init__(self, train_func, batch_size, epochs, train_test_ratio):
+        super().__init__()
+        self.train_func = train_func
+        self.batch_size = batch_size
+        self.epochs = epochs
+        self.train_test_ratio = train_test_ratio
+
+    def run(self):
+        self.train_func(self.batch_size, self.epochs, self.train_test_ratio, self.update_plot)
+        self.finished.emit()
+
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -259,6 +276,11 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        # added
+        self.training_plot_window = None
+
+
 # =================================|| Functions ||=================================
     # Function to load model
     def loadModel(self):
@@ -402,38 +424,31 @@ class Ui_MainWindow(object):
 
     # Function that opens another window 
     def startTraining(self):
-        # Get selected model
         selected_model = self.train_combobox.currentText()
-        script_path = self.model_scripts[selected_model]
+        train_function = self.model_scripts[selected_model]
 
-        # Get training parameters
         batch_size = self.train_batch.value()
         epochs = self.train_epoch.value()
         train_test_ratio = self.train_slider.value() / 100.0
-        
-        # Run the training function directly
-        #train_function(batch_size, epochs, train_test_ratio)
-        script_path(batch_size, epochs, train_test_ratio)
 
-        # Optionally, show training session window to indicate training progress
+        # Create and start the worker thread
+        self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio)
+        self.worker.update_plot.connect(self.updatePlot)
+        self.worker.finished.connect(self.onTrainingFinished)
+        self.worker.start()
+
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_training_session()
         self.ui.setupUi(self.window, (batch_size, epochs, train_test_ratio, selected_model))
         self.window.show()
+        self.training_plot_window = self.window
 
-    def onTrainingFinished(self, stdout, stderr):
-        if stdout:
-            print("Training completed successfully")
-            print(stdout)
-        if stderr:
-            print("Error during training")
-            print(stderr)
-        
-        # Open the training session window to show progress
-        self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_training_session()
-        self.ui.setupUi(self.window, (self.train_batch.value(), self.train_epoch.value(), self.train_slider.value() / 100.0, self.train_combobox.currentText()))
-        self.window.show()
+    def updatePlot(self, train_losses, val_accuracies, epoch):
+        if self.training_plot_window:
+            self.ui.update_plot(train_losses, val_accuracies, epoch)
+
+    def onTrainingFinished(self):
+        print("Training completed successfully")
 
     def openWebcam(self):
         # Check if an instance of QApplication already exists
