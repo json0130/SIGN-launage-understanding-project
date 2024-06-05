@@ -117,7 +117,7 @@ class Ui_MainWindow(object):
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
         # Create a list to hold the image widgets
-        self.data_data_image_widgets = []
+        self.data_image_widgets = []
 
         # Create a widget to hold the grid layout 
         self.grid_widget = QtWidgets.QWidget()
@@ -283,7 +283,7 @@ class Ui_MainWindow(object):
         self.test_scroll.setWidgetResizable(True)
         self.test_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.test_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.train_image_widgets = []
+        self.test_image_widgets = []
 
         # Create a widget to hold the grid layout 
         self.test_grid_widget = QtWidgets.QWidget()
@@ -307,6 +307,13 @@ class Ui_MainWindow(object):
     # Function to load model
     def loadModel(self):
         self.model_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
+
+    def alphabetcheck(self, input):
+        #checks if a string is a letter and if it is in the alphabet it converts it into a number from 0-25
+        if input.isalpha():
+            return ord(input.lower()) - 97
+        else:
+            return input
     
     def perform_search(self):
         file_path = 'images'
@@ -314,9 +321,8 @@ class Ui_MainWindow(object):
         if not os.path.exists(file_path):
             return
         
-        file_size = len(os.listdir(file_path))
-
         search_text = self.data_search.text().strip().lower()
+        search_text = self.alphabetcheck(search_text)
 
         # Check if seach test is empty
         if not search_text:
@@ -331,7 +337,24 @@ class Ui_MainWindow(object):
                 label.setVisible(True)
 
     def perform_test_search(self):
-        pass
+        file_path = 'test_images'
+        # Check if the file path exists
+        if not os.path.exists(file_path):
+            return
+        
+        search_text = self.test_search.text().strip().lower()
+
+        # Check if seach test is empty
+        if not search_text:
+            for label, image_file in self.test_image_widgets:
+                label.setVisible(True)
+            return
+
+        for label, image_file in self.test_image_widgets:
+            if not image_file.startswith('label_' + search_text +'_'):
+                label.setVisible(False)
+            else:
+                label.setVisible(True)
             
     def uploadFiles(self):
         #accessing the file path to pictures
@@ -374,7 +397,6 @@ class Ui_MainWindow(object):
 
             self.grid_widget.setLayout(self.data_grid)       
                  
-	# Funtion to upload files for test set 
     def selectToTest(self):
          #accessing the file path to pictures
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
@@ -391,7 +413,7 @@ class Ui_MainWindow(object):
             number_of_images = csv_to_images(file_path, 'test_images', (28, 28))
             number_of_images = math.ceil(number_of_images/4)
             positions = [(i, j) for i in range(number_of_images) for j in range(4)]
-            self.data_image_widgets.clear()
+            self.test_image_widgets.clear()
 
             for position, image in zip(positions, os.listdir('test_images')):
                 image_path = os.path.join('test_images', image)
@@ -403,8 +425,8 @@ class Ui_MainWindow(object):
                 # Create a QPixmap to display images                 
                 qp = QPixmap()
                 qp.loadFromData(image_data)
-                qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-                ClickLabel.setPixmap(self.qp)
+                qp = qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+                ClickLabel.setPixmap(qp)
 
                 # Connect the click signal
                 ClickLabel.clicked.connect(self.labelClicked)
@@ -413,7 +435,6 @@ class Ui_MainWindow(object):
                 self.test_grid.addWidget(ClickLabel, *position)  
 
             self.test_grid_widget.setLayout(self.test_grid)
-            self.test_image_widgets.append((ClickLabel, image))
             self.update_test_grid()
     
     def update_test_grid(self):
@@ -472,7 +493,8 @@ class Ui_MainWindow(object):
                 self.test_image_widgets.append((ClickLabel, image))
 
             # Add the ClickLabel to the GridLayout
-            self.test_grid.addWidget(ClickLabel, *position)  
+            self.test_grid.addWidget(ClickLabel, *position) 
+            self.test_image_widgets.append((ClickLabel, image))
 
         self.test_grid_widget.setLayout(self.test_grid)
 
