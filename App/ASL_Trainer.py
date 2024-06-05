@@ -438,6 +438,13 @@ class Ui_MainWindow(object):
         # Check if dataset file path is set
         if not self.dataset_file_path:
             print("No dataset file selected")
+            # Show error message
+            error_msg = QMessageBox()
+            error_msg.setIcon(QMessageBox.Critical)
+            error_msg.setText("No dataset file selected")
+            error_msg.setInformativeText("Please upload a dataset file before starting the training.")
+            error_msg.setWindowTitle("Error")
+            error_msg.exec_()
             return
 
         # Create and start the worker thread
