@@ -155,6 +155,7 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None, upd
             update_plot_signal.emit(train_losses, val_accuracies, epoch)
 
     torch.save(model.state_dict(), 'asl_mobilenet_model.pth')
+    print("Model Saved")
 
 def main():
     parser = argparse.ArgumentParser(description='Training Script')
