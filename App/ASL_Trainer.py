@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
 
         # Create Scroll Area
         self.scroll = QtWidgets.QScrollArea(self.load)
-        self.scroll.setGeometry(QtCore.QRect(30, 180, 541, 551))
+        self.scroll.setGeometry(QtCore.QRect(30, 180, 541, 580))
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -324,6 +324,8 @@ class Ui_MainWindow(object):
         self.loadImages()
 
     def loadImages(self):
+        self.image_widgets = []
+
         if self.image_file and self.image_file[0]:
             file_path = self.image_file[0][0]
             # Print file path
@@ -357,7 +359,7 @@ class Ui_MainWindow(object):
 
                  # Add the QLabel to the GridLayout
                 self.data_grid.addWidget(Label, *position)  
-                self.image_widgets.append(Label, image)
+                self.image_widgets.append((Label, image))
 
             self.grid_widget.setLayout(self.data_grid)       
                  
