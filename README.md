@@ -55,40 +55,40 @@ To set up the environment for the Sign Language Understanding Project, follow th
      ```
      conda activate sign_language_env
      ```
-
-4. **Install Required Libraries**:
-   - Install the necessary libraries using pip. Run the following commands:
-     ```
-     pip install -r requirements.txt
-     ```
-   - These commands will install PyTorch, OpenCV, PyQt5, NumPy and other dependencies with the specified versions.
-
-5. **Clone the Project Repository**:
+4. **Clone the Project Repository**:
    - Clone the Sign Language Understanding Project repository from GitHub using the following command:
      ```
      git clone https://github.com/COMPSYS302/project-python-sunshine-group-23.git
      ```
    - Navigate to the project directory:
      ```
-     cd project-python-sunshine-group-23/APP
+     cd project-python-sunshine-group-23
      ```
 
+5. **Install Required Libraries**:
+   - Install the necessary libraries using pip. Run the following commands:
+     ```
+     pip install -r requirements.txt
+     ```
+   - These commands will install PyTorch, OpenCV, PyQt5, NumPy and other dependencies with the specified versions.
+
 6. **Run the Application**:
+    - Navigate to the App directory:
+     ```
+     cd project-python-sunshine-group-23/App
+     ```
    - Launch the Sign Language Understanding application by running the main script:
      ```
-     python3 ASL_Trainer.py
+     python ASL_Trainer.py
      ```
    - The application will start, and you can interact with the GUI to perform sign language recognition tasks.
 
-7. Select the preferred setting and start the training.
+8. Select the preferred setting and start the training.
 
-8. Now, you can test your model using the dataset image or using the webcam.
+9. Now, you can test your model using the dataset image or using the webcam.
 
 
 **System Requirements**:
-- Operating System: Windows, macOS, or Linux
-- RAM: 8 GB or higher recommended
-- CPU: Intel Core i5 or equivalent
 - GPU: NVIDIA GPU with CUDA support (recommended for faster training)
 
 **Additional Notes**:
@@ -100,12 +100,35 @@ By following these setup instructions and meeting the system requirements, you w
 
 ## Usage
 
-1. Launch the Sign Language Understanding application.
+#Training your model
 
-2. Ensure that your webcam is connected and functioning properly.
+**Data**
+1. Launch the Sign Language Understanding application via aforementioned step 6.
+2. On startup, you will be on the 'Data' tab. From here, select 'Upload Dataset' and navigate to your .csv file, then confirm to complete upload.
+3. After a short delay, your dataset will be displayed on the GUI as images. From here, you can search to filter images via their label
 
-3. Position yourself in front of the webcam, ensuring your hands are visible.
+**Train**
 
-4. Perform sign language gestures; the application will analyze and interpret them in real-time.
+5. Next, select the 'Train' tab. Here you can select your model via the dropdown menu.
+6. On model selection, the hyperparameters will auto default to recommended settings for that model. Adjust these per your use.
+7. Click the 'Start Training' button to begin training the selected model, with the configured hyperparamters, on the previously uploaded dataset. This will open a new window.
+8. The new training window has 2 plots which update every epoch to display Training Loss and Validation Accuracy. Underneath, there is a progress bar which updates every loop. From here, clicking the 'Stop Training' button will terminate training and save the model up to that point under:
+```
+./App/user_trained_models/your_model_here.pth
+```
 
-5. The interpreted sign language will be displayed on the application's interface.
+**Test**
+
+8. Next, you can navigate to the 'Test' tab to test your model. Here, at the top of the GUI window, click 'Load Model' and find your .pth file. This file should be inside the above mentioned directory.
+9. Then, select the Test set by clicking the respective button. After a short delay, your test set should be displayed as images on the GUI.
+10. Click on any image to use your loaded model and make prediction.
+
+
+
+**Live stream prediction**
+1. Ensure that your webcam is connected and functioning properly.
+2. Position yourself in front of the webcam, ensuring your hands are visible.
+3. Navigate to the 'Test' tab and select 'Live Testing' to launch the live prediction script
+4. OR click on 'Open Webcam' to take a still photo.
+5. Perform sign language gestures; the application will analyze and interpret them in real-time.
+6. The interpreted sign language will be displayed on the application's interface.
