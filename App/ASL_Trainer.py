@@ -95,13 +95,23 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.data_file_button)
         spacerItem1 = QtWidgets.QSpacerItem(191, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
+
+        #Create a Search bar for the data set
+        self.data_search = QtWidgets.QLineEdit(self.load)
+        self.data_search.setGeometry(QtCore.QRect(30, 150, 200, 20))
+        self.data_search.setStyleSheet("QLineEdit {background-color: #333333; color: white; border: 1px solid #345CC1;}")
+        self.data_search.setPlaceholderText("Search")
+        self.data_search.textChanged.connect(self.perform_search)
+        self.data_search.setClearButtonEnabled(True)
+
+        # Create a Title for the images                          
         self.data_image_title = QtWidgets.QLabel(self.load)
-        self.data_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
-        self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        self.data_image_title.setGeometry(QtCore.QRect(30, 130, 91, 16))
+        self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")                             
 
         # Create Scroll Area
         self.scroll = QtWidgets.QScrollArea(self.load)
-        self.scroll.setGeometry(QtCore.QRect(30, 160, 541, 551))
+        self.scroll.setGeometry(QtCore.QRect(30, 180, 541, 551))
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -285,18 +295,40 @@ class Ui_MainWindow(object):
     # Function to load model
     def loadModel(self):
         self.model_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
+    
+    def perform_search(self):
+        file_path = 'images'
+        # Check if the file path exists
+        if not os.path.exists(file_path):
+            return
+        
+        file_size = len(os.listdir(file_path))
 
-    # Function to upload files for data set
+        search_text = self.data_search.text().strip().lower()
+
+        # Check if seach test is empty
+        if not search_text:
+            for label, image_file in self.image_widgets:
+                label.setVisible(True)
+            return
+
+        for label, image_file in self.image_widgets:
+            if not image_file.startswith('label_' + search_text +'_'):
+                label.setVisible(False)
+            else:
+                label.setVisible(True)
+            
     def uploadFiles(self):
         #accessing the file path to pictures
-        file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
+        self.image_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
+        self.loadImages()
 
-        if file and file[0]:
-            file_path = file[0][0]
+    def loadImages(self):
+        if self.image_file and self.image_file[0]:
+            file_path = self.image_file[0][0]
             # Print file path
-            print(file[0][0])
+            print(file_path)
             number_of_images = csv_to_images(file_path, 'images', (28, 28))
-            # Add AI model to train the data set HERE
 
             # Clean the grid layout
             while self.data_grid.count():
@@ -304,24 +336,28 @@ class Ui_MainWindow(object):
                 if child.widget():
                     child.widget().deleteLater()
 
+            # Setting up the grid layout
             number_of_images = math.ceil(number_of_images/4)
-
             positions = [(i, j) for i in range(number_of_images) for j in range(4)]
+            self.image_widgets.clear()
+
             for position, image in zip(positions, os.listdir('images')):
                 image_path = os.path.join('images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
                 
                 # Create a QLabel to hold images  
-                QLabel = QtWidgets.QLabel()
-                QLabel.setFixedSize(90, 90)
+                Label = QtWidgets.QLabel()
+                Label.setFixedSize(90, 90)
+
                 # Create a QPixmap to display images                 
-                self.qp = QPixmap()
-                self.qp.loadFromData(image_data)
-                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-                QLabel.setPixmap(self.qp)
+                qp = QPixmap()
+                qp.loadFromData(image_data)
+                qp = qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+                Label.setPixmap(qp)
 
                  # Add the QLabel to the GridLayout
-                self.data_grid.addWidget(QLabel, *position)  
+                self.data_grid.addWidget(Label, *position)  
+                self.image_widgets.append(Label, image)
 
             self.grid_widget.setLayout(self.data_grid)       
                  
@@ -374,8 +410,8 @@ class Ui_MainWindow(object):
             return
 
         file_size = len(os.listdir(file_path))
-        # add the new images to the end of the grid
         
+        # Clean the grid layout
         while self.test_grid.count():
             child = self.test_grid.takeAt(0)
             if child.widget():
