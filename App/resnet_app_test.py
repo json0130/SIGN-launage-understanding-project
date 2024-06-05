@@ -62,8 +62,12 @@ def predict_image(image_path,model_file):
         predicted_probabilities, predicted_classes = torch.topk(probabilities, k=5)
         predicted_probabilities = predicted_probabilities.squeeze().tolist()
         predicted_classes = predicted_classes.squeeze().tolist()
-        labels = [chr(ord('A') + idx) for idx in predicted_classes]
-        results = list(zip(labels, predicted_probabilities))
+        
+        # Define the labels for the 36 classes
+        labels = [chr(i) for i in range(65, 91)] + [str(i) for i in range(10)]  # A-Z and 0-9
+        predicted_labels = [labels[idx] for idx in predicted_classes]
+        
+        results = list(zip(predicted_labels, predicted_probabilities))
     
     return results
 
