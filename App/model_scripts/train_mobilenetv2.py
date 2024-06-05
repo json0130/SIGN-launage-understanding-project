@@ -64,11 +64,11 @@ class ASLDataset(Dataset):
 
        return image, label_idx
 
-def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None, update_progress_signal=None, worker=None):
+def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signal=None, update_progress_signal=None, worker=None):
     print("Commencing training for MobileNet_v2")
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
 
-    data = pd.read_csv('../dataset.csv', low_memory=False)
+    data = pd.read_csv(file_path, low_memory=False)
     print(f"Loaded dataset")
 
     train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)

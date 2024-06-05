@@ -21,22 +21,25 @@ class TrainingWorker(QThread):
     update_progress = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, train_func, batch_size, epochs, train_test_ratio):
+    def __init__(self, train_func, batch_size, epochs, train_test_ratio, dataset_file_path):
         super().__init__()
         self.train_func = train_func
         self.batch_size = batch_size
         self.epochs = epochs
         self.train_test_ratio = train_test_ratio
+        self.dataset_file_path = dataset_file_path
         self.stop_requested = False
 
     def run(self):
-        self.train_func(self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
+        self.train_func(self.dataset_file_path, self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
 
     def stop(self):
         self.stop_requested = True
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
+        self.dataset_file_path = None
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 800)
         MainWindow.setMinimumSize(QtCore.QSize(600, 880))
@@ -293,11 +296,11 @@ class Ui_MainWindow(object):
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
 
         if file and file[0]:
-            file_path = file[0][0]
+            self.dataset_file_path = file[0][0]
             # Print file path
-            print(file[0][0])
-            number_of_images = csv_to_images(file_path, 'images', (28, 28))
-            # Add AI model to train the data set HERE
+            print(self.dataset_file_path)
+            number_of_images = csv_to_images(self.dataset_file_path, 'images', (28, 28))
+            # Add AI model to train the data set HERE ?
 
             # Clean the grid layout
             while self.data_grid.count():
@@ -432,8 +435,13 @@ class Ui_MainWindow(object):
         epochs = self.train_epoch.value()
         train_test_ratio = self.train_slider.value() / 100.0
 
+        # Check if dataset file path is set
+        if not self.dataset_file_path:
+            print("No dataset file selected")
+            return
+
         # Create and start the worker thread
-        self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio)
+        self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio, self.dataset_file_path)
         self.worker.update_plot.connect(self.updatePlot)
         self.worker.update_progress.connect(self.updateProgress)
         self.worker.finished.connect(self.onTrainingFinished)
