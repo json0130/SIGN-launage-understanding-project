@@ -16,27 +16,23 @@ class Ui_training_session(object):
         self.main_layout = QVBoxLayout(self.centralwidget)
 
         # Add a graph view layout
-        self.view_graph = QHBoxLayout()
+        self.view_graph = QVBoxLayout()
         self.main_layout.addLayout(self.view_graph)
 
-        #GUI event loop
-        plt.ion()
+        # Create a figure with two subplots side by side
+        self.figure, (self.ax1, self.ax2) = plt.subplots(1, 2, figsize=(10, 5))
 
-        # Create a figure and canvas for the first plot
-        self.figure1 = plt.figure()
-        self.canvas1 = FigureCanvas(self.figure1)
-        self.toolbar1 = NavigationToolbar(self.canvas1, training_session)
-        self.view_graph.addWidget(self.toolbar1)
-        self.view_graph.addWidget(self.canvas1)
-        self.ax1 = self.figure1.add_subplot(111)
+        # Create a canvas and toolbar
+        self.canvas = FigureCanvas(self.figure)
+        self.toolbar = NavigationToolbar(self.canvas, training_session)
 
-        # Create a figure and canvas for the second plot
-        self.figure2 = plt.figure()
-        self.canvas2 = FigureCanvas(self.figure2)
-        self.toolbar2 = NavigationToolbar(self.canvas2, training_session)
-        self.view_graph.addWidget(self.toolbar2)
-        self.view_graph.addWidget(self.canvas2)
-        self.ax2 = self.figure2.add_subplot(111)
+        # Add toolbar and canvas to the layout
+        self.view_graph.addWidget(self.toolbar)
+        self.view_graph.addWidget(self.canvas)
+
+        # Set titles for the subplots
+        self.ax1.set_title("Accuracy")
+        self.ax2.set_title("Loss")
 
         # Create a frame for options
         self.options_frame = QtWidgets.QFrame(self.centralwidget)
@@ -94,21 +90,32 @@ class Ui_training_session(object):
         # Add code here to plot the data on ax1 and ax2
         self.ax1.plot(data1)
         self.ax2.plot(data2)
-        self.canvas1.draw()
-        self.canvas2.draw()
+        self.canvas.draw()
 
     def update_plot(self, train_losses, val_accuracies, epoch):
-        # Add code here to update the plot with new data
-        plt.figure()
-        plt.plot(train_losses, label='Training Loss')
-        plt.plot(val_accuracies, label='Validation Accuracy')
-        plt.legend()
-        plt.title(f'Epoch {epoch+1}')
-        plt.savefig('plot.png')
-        plt.close()
+        # Clear previous plots
+        self.ax1.clear()
+        self.ax2.clear()
 
-        pixmap = QPixmap('plot.png')
-        self.view_graph.setPixmap(pixmap)
+        # Create x-axis values starting from 1
+        epochs = list(range(1, epoch + 2))
+
+        # Update the plots with new data
+        self.ax1.plot(epochs, train_losses, label='Training Loss')
+        self.ax1.set_title(f'Training Loss - Epoch {epoch + 1}')
+        self.ax1.set_xlabel('Epoch')
+        self.ax1.set_ylabel('Loss')
+        self.ax1.legend()
+
+        self.ax2.plot(epochs, val_accuracies, label='Validation Accuracy')
+        self.ax2.set_title(f'Validation Accuracy - Epoch {epoch + 1}')
+        self.ax2.set_xlabel('Epoch')
+        self.ax2.set_ylabel('Accuracy')
+        self.ax2.legend()
+
+        # Redraw the canvas
+        self.canvas.draw()
+
 
 if __name__ == "__main__":
     import sys
