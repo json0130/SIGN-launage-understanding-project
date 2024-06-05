@@ -35,7 +35,7 @@ class Ui_training_session(object):
         self.gridLayout = QGridLayout(self.options_frame)
 
         self.progressBar = QtWidgets.QProgressBar(self.options_frame)
-        self.progressBar.setStyleSheet("QProgressBar {color: white;}")
+        self.progressBar.setStyleSheet("QProgressBar {color: black;}")
         self.progressBar.setProperty("value", 0)
         self.gridLayout.addWidget(self.progressBar, 1, 3, 1, 1)
 
@@ -84,11 +84,13 @@ class Ui_training_session(object):
         self.ax2.clear()
 
         epochs = list(range(1, epoch + 2))
+        self.ax1.set_title("Accuracy")
         self.ax1.plot(epochs, train_losses, label='Training Loss')
         self.ax1.set_xlabel('Epoch')
         self.ax1.set_ylabel('Loss')
         self.ax1.legend()
 
+        self.ax2.set_title("Loss")
         self.ax2.plot(epochs, val_accuracies, label='Validation Accuracy')
         self.ax2.set_xlabel('Epoch')
         self.ax2.set_ylabel('Accuracy')
