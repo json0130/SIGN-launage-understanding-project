@@ -54,6 +54,8 @@ class Ui_MainWindow(object):
         self.tabWidget.setStyleSheet("QTabWidget::pane { border: 1px solid #1F1F1F; background: #1F1F1F;}\n"
                                      "QTabBar::tab { background: #333333; color: #ffffff; padding: 10px;}\n"
                                      "QTabBar::tab:selected { background: #1F1F1F; color: #FFFFFF;}")
+        self.first_time_train_tab = True
+
         # Creating a tool bar 
         toolbar = QToolBar("Camera Tool Bar") 
         toolbar.setStyleSheet("QToolBar { background: #333333; color: white; }"
@@ -121,6 +123,14 @@ class Ui_MainWindow(object):
     
 # =================================|| Train Tab ||=================================
 
+        # Create a dictionary to store default values for each model
+        self.model_defaults = {
+            "InceptionV3": {"batch_size": 32, "epochs": 30, "train_ratio": 80},
+            "MobileNet_V2": {"batch_size": 64, "epochs": 30, "train_ratio": 80},
+            "ResNet_50": {"batch_size": 64, "epochs": 30, "train_ratio": 80},
+            "Sunshine23": {"batch_size": 64, "epochs": 30, "train_ratio": 80}
+        }
+        
         self.tabWidget.addTab(self.load, "")
         self.train = QtWidgets.QWidget()
         self.train_options_frame = QtWidgets.QFrame(self.train)
@@ -189,8 +199,11 @@ class Ui_MainWindow(object):
         self.train_combobox = QtWidgets.QComboBox(self.train_model_frame)
         self.train_combobox.setMinimumSize(QtCore.QSize(60, 30))
         self.gridLayout_3.addWidget(self.train_combobox, 2, 1, 1, 1)
-        self.train_combobox.addItems(["InceptionV3", "MobileNet_V2", "ResNet_50", "Sunshine23"])
-        
+        self.train_combobox.addItems(["Select your Model","InceptionV3", "MobileNet_V2", "ResNet_50", "Sunshine23"])
+
+        #Connect the currentIndexChanged signal to a function
+        self.train_combobox.currentIndexChanged.connect(self.update_model_defaults)
+
         # Mapping model names to script paths
         self.model_scripts = {
             "InceptionV3": train_inceptionv3.train,
@@ -198,6 +211,12 @@ class Ui_MainWindow(object):
             "ResNet_50": "../ResNet_50/train.py",
             "Sunshine23": "../Sunshine23/sunshine23.py"
         }
+
+        # Disable the start button initially
+        self.train_start_button.setEnabled(False)
+
+        # Connect the combobox change to enable/disable button
+        self.train_combobox.currentIndexChanged.connect(self.check_model_selection)
 
         spacerItem6 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_3.addItem(spacerItem6, 2, 7, 1, 1)
@@ -427,9 +446,23 @@ class Ui_MainWindow(object):
 
         self.test_grid_widget.setLayout(self.test_grid)
 
+    def check_model_selection(self):
+        selected_model = self.train_combobox.currentText()
+        if selected_model == "Select your Model":
+            self.train_start_button.setEnabled(False)
+        else:
+            self.train_start_button.setEnabled(True)
+
     # Function that opens another window 
     def startTraining(self):
+
         selected_model = self.train_combobox.currentText()
+
+        print(self.train_start_button)
+
+        if selected_model == "Select your Model":
+            return
+
         train_function = self.model_scripts[selected_model]
 
         batch_size = self.train_batch.value()
@@ -460,7 +493,21 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.window, self.worker)
         self.window.show()
         self.training_plot_window = self.window
+    
+    def update_model_defaults(self, index):
+            selected_model = self.train_combobox.itemText(index)
+            defaults = self.model_defaults.get(selected_model)
 
+            if defaults:
+                batch_size = defaults["batch_size"]
+                epochs = defaults["epochs"]
+                train_ratio = defaults["train_ratio"]
+
+                # Update the widgets with the default values
+                self.train_batch.setValue(batch_size)
+                self.train_epoch.setValue(epochs)
+                self.train_slider.setValue(train_ratio)
+        
     def updatePlot(self, train_losses, val_accuracies, epoch):
         if self.training_plot_window:
             self.ui.update_plot(train_losses, val_accuracies, epoch)
