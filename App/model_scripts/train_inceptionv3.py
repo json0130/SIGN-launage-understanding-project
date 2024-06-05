@@ -75,7 +75,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
     # Create datasets and data loaders
     train_dataset = ASLDataset(train_data, transform=data_transform)
     test_dataset = ASLDataset(test_data, transform=data_transform)
-    batch_size = 64
+    #batch_size = 64
 
     num_cores = os.cpu_count()
     num_workers = max(1, num_cores - 1)
@@ -91,7 +91,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    num_epochs = 30  
+    #num_epochs = 30  
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
