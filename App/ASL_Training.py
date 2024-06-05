@@ -90,7 +90,7 @@ class Ui_training_session(object):
         self.ax1.set_ylabel('Loss')
         self.ax1.legend()
 
-        self.ax2.set_title("Validation Accuracyoss")
+        self.ax2.set_title("Validation Accuracy")
         self.ax2.plot(epochs, val_accuracies, label='Validation Accuracy')
         self.ax2.set_xlabel('Epoch')
         self.ax2.set_ylabel('Accuracy')
