@@ -98,7 +98,7 @@ class Ui_MainWindow(object):
 
         #Create a Search bar for the data set
         self.data_search = QtWidgets.QLineEdit(self.load)
-        self.data_search.setGeometry(QtCore.QRect(30, 150, 200, 20))
+        self.data_search.setGeometry(QtCore.QRect(30, 147, 200, 25))
         self.data_search.setStyleSheet("QLineEdit {background-color: #333333; color: white; border: 1px solid #345CC1;}")
         self.data_search.setPlaceholderText("Search")
         self.data_search.textChanged.connect(self.perform_search)
@@ -106,7 +106,7 @@ class Ui_MainWindow(object):
 
         # Create a Title for the images                          
         self.data_image_title = QtWidgets.QLabel(self.load)
-        self.data_image_title.setGeometry(QtCore.QRect(30, 130, 91, 16))
+        self.data_image_title.setGeometry(QtCore.QRect(30, 125, 91, 16))
         self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")                             
 
         # Create Scroll Area
@@ -115,6 +115,9 @@ class Ui_MainWindow(object):
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        
+        # Create a list to hold the image widgets
+        self.image_widgets = []
 
         # Create a widget to hold the grid layout 
         self.grid_widget = QtWidgets.QWidget()
@@ -324,8 +327,6 @@ class Ui_MainWindow(object):
         self.loadImages()
 
     def loadImages(self):
-        self.image_widgets = []
-
         if self.image_file and self.image_file[0]:
             file_path = self.image_file[0][0]
             # Print file path
