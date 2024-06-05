@@ -1,6 +1,6 @@
 # Sign Language Understanding Project
 
-The Sign Language Understanding Project is a cutting-edge system that leverages machine learning techniques to analyze and interpret sign language in real-time. By utilizing three state-of-the-art Convolutional Neural Network (CNN) models—Inception v3, ResNet 50, MobileNet v2 and SUNSHINE23—, the project aims to provide accurate and efficient sign language recognition.
+The Sign Language Understanding Project is a cutting-edge system that leverages machine learning techniques to analyze and interpret sign language in real-time. By utilizing four state-of-the-art Convolutional Neural Network (CNN) models—Inception v3, ResNet 50, MobileNet v2 and SUNSHINE23—, the project aims to provide accurate and efficient sign language recognition.
 
 ## Features
 
