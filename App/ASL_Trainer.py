@@ -587,8 +587,8 @@ class Ui_MainWindow(object):
             sys.exit(app.exec_())
 
     def openLivecam(self):
-        # Add live cam code here
-        pass
+        import live_testing
+        live_testing.run()
 
     # Function that runs when the label is clicked
     def labelClicked(self, object_path):
