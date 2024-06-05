@@ -82,6 +82,11 @@ To set up the environment for the Sign Language Understanding Project, follow th
      python ASL_Trainer.py
      ```
    - The application will start, and you can interact with the GUI to perform sign language recognition tasks.
+  
+    *Note: You have to add pre-trained models and dataset.csv in the correct directory.
+   - Pre-trained models go inside the App/user-trained_models.
+   - dataset.csv goes inside the App directory.
+   - These files can be found in our zip file.
 
 8. Select the preferred setting and start the training.
 
