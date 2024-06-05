@@ -52,21 +52,22 @@ class ASLDataset(Dataset):
 
         return image, label
 
-def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):    # Prepare data generator for standardizing frames before sending them into the model
+def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signal=None, update_progress_signal=None, worker=None):
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
     
     # Define a composition of image transformations for data preprocessing and augmentation
     data_transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((224, 224)),
+        transforms.Resize((299, 299)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(10),
-        transforms.RandomCrop(200),
+        transforms.RandomCrop(299),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
+    print(f"Loaded dataset")
 
     # Load the dataset
-    data = pd.read_csv('../dataset.csv', low_memory=False)
+    data = pd.read_csv(file_path, low_memory=False)
 
     # Split the dataset into train and test
     train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
@@ -98,12 +99,20 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
     train_losses = []
 
     # Training loop
+    print(f"Starting training loop with batch_size: {batch_size} for {num_epochs} epochs")
+    total_steps = num_epochs * len(train_loader)
     for epoch in range(num_epochs):
+        if worker and worker.stop_requested:
+            print("Training stopped")
+            break
         running_loss = 0.0
         model.train()
         total_batches = len(train_loader)
 
         for batch_idx, (images, labels) in enumerate(train_loader):
+            if worker and worker.stop_requested:
+                print("Training stopped")
+                break
             images = images.to(device)
             labels = labels.to(device)
             
@@ -114,6 +123,11 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
             optimizer.step()
             
             running_loss += loss.item()
+
+            if update_progress_signal:
+                current_step = epoch * len(train_loader) + batch_idx + 1
+                progress = int((current_step / total_steps) * 100)
+                update_progress_signal.emit(progress)
 
             # Print progress 
             if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches: 
@@ -131,6 +145,9 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
         total = 0
         with torch.no_grad():
             for batch_idx, (images, labels) in enumerate(test_loader):
+                if worker and worker.stop_requested:
+                    print("Training stopped")
+                    break
                 images = images.to(device)
                 labels = labels.to(device)
                 
@@ -144,10 +161,13 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
 
         print(f"Accuracy on test set: {(correct / total) * 100}%")
 
-        # send signal
+        if update_plot_signal:
+            update_plot_signal.emit(train_losses, val_accuracies, epoch)
 
     # save the trained model
-    torch.save(model.state_dict(), 'asl_inceptionv3_model.pth')
+    torch.save(model.state_dict(), 'user_trained_models/asl_inceptionv3_model.pth')
+    print("Model Saved")
+
 
 def main():
     parser = argparse.ArgumentParser(description='Training Script')
