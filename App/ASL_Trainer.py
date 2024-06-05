@@ -21,17 +21,17 @@ class TrainingWorker(QThread):
     update_progress = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, train_func, batch_size, epochs, train_test_ratio, dataset_file_path):
+    def __init__(self, train_func, batch_size, epochs, train_test_ratio, image_file):
         super().__init__()
         self.train_func = train_func
         self.batch_size = batch_size
         self.epochs = epochs
         self.train_test_ratio = train_test_ratio
-        self.dataset_file_path = dataset_file_path
+        self.image_file = image_file
         self.stop_requested = False
 
     def run(self):
-        self.train_func(self.dataset_file_path, self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
+        self.train_func(self.image_file, self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
         self.finished.emit()
 
     def stop(self):
@@ -39,7 +39,7 @@ class TrainingWorker(QThread):
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
-        self.dataset_file_path = None
+        self.image_file = None
 
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(600, 800)
@@ -387,6 +387,7 @@ class Ui_MainWindow(object):
         #accessing the file path to pictures
         self.image_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
         self.loadImages()
+        self.image_file = self.image_file[0][0]
 
     def loadImages(self):
         if self.image_file and self.image_file[0]:
@@ -517,7 +518,7 @@ class Ui_MainWindow(object):
         train_test_ratio = self.train_slider.value() / 100.0
 
         # Check if dataset file path is set
-        if not self.dataset_file_path:
+        if not self.image_file:
             print("No dataset file selected")
             # Show error message
             error_msg = QMessageBox()
@@ -529,7 +530,7 @@ class Ui_MainWindow(object):
             return
 
         # Create and start the worker thread
-        self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio, self.dataset_file_path)
+        self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio, self.image_file)
         self.worker.update_plot.connect(self.updatePlot)
         self.worker.update_progress.connect(self.updateProgress)
         self.worker.finished.connect(self.onTrainingFinished)
