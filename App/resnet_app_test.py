@@ -3,14 +3,15 @@ import torch
 import torchvision.transforms as transforms
 from train import ASLModel, data_transform
 
-# Load the trained model
-num_classes = 34  # Number of ASL classes
-model = ASLModel(num_classes)
-model.load_state_dict(torch.load('asl_resnet_model.pth'))
-model.eval()
-
 # Function to predict the label of an input image
-def predict_image(image_path):
+def predict_image(image_path,model_file):
+
+    # Load the trained model
+    num_classes = 34  # Number of ASL classes
+    model = ASLModel(num_classes)
+    model.load_state_dict(torch.load(model_file))
+    model.eval()
+
     # Load the image using OpenCV
     image = cv2.imread(image_path)
     if image is None:
