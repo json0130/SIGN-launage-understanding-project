@@ -23,8 +23,8 @@ class Ui_training_session(object):
         self.view_graph.addWidget(self.toolbar)
         self.view_graph.addWidget(self.canvas)
 
-        self.ax1.set_title("Accuracy")
-        self.ax2.set_title("Loss")
+        self.ax1.set_title("Training Loss")
+        self.ax2.set_title("Validation Accuracy")
 
         self.options_frame = QtWidgets.QFrame(self.centralwidget)
         self.options_frame.setStyleSheet("QFrame {background-color: #333333;}")
@@ -84,13 +84,13 @@ class Ui_training_session(object):
         self.ax2.clear()
 
         epochs = list(range(1, epoch + 2))
-        self.ax1.set_title("Accuracy")
+        self.ax1.set_title("Training Loss")
         self.ax1.plot(epochs, train_losses, label='Training Loss')
         self.ax1.set_xlabel('Epoch')
         self.ax1.set_ylabel('Loss')
         self.ax1.legend()
 
-        self.ax2.set_title("Loss")
+        self.ax2.set_title("Validation Accuracyoss")
         self.ax2.plot(epochs, val_accuracies, label='Validation Accuracy')
         self.ax2.set_xlabel('Epoch')
         self.ax2.set_ylabel('Accuracy')
