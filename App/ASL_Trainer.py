@@ -592,14 +592,10 @@ class Ui_MainWindow(object):
 
     # Function that runs when the label is clicked
     def labelClicked(self, object_path):
-<<<<<<< Updated upstream
-        results = resnet_app_test.predict_image(object_path)
-=======
         print("clicked")
         print(object_path)
         print("clicked")
         results = resnet_app_test.predict_image(object_path, self.model_file)
->>>>>>> Stashed changes
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_Results()
