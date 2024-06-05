@@ -147,6 +147,8 @@ class Ui_MainWindow(object):
         
         self.tabWidget.addTab(self.load, "")
         self.train = QtWidgets.QWidget()
+
+        # Create a Frame for the model selection
         self.train_options_frame = QtWidgets.QFrame(self.train)
         self.train_options_frame.setGeometry(QtCore.QRect(30, 260, 531, 451))
         self.train_options_frame.setStyleSheet("QFrame {background-color: #333333;}")
@@ -161,6 +163,7 @@ class Ui_MainWindow(object):
         self.gridLayout_2.addWidget(self.train_batch_label, 8, 1, 1, 1)
         spacerItem2 = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem2, 11, 1, 1, 1)
+        # Create a slider for the training ratio
         self.train_slider = QtWidgets.QSlider(self.train_options_frame)
         self.train_slider.setStyleSheet("QSlider::groove:horizontal {height: 4px; background: #F0F0F0; margin: 2px 0; border-radius: 4px;}\n"
                                         "QSlider::handle:horizontal {background: #345CC1; width: 24px; height: 18px; margin: -5px 0;}\n"
@@ -169,6 +172,7 @@ class Ui_MainWindow(object):
         self.train_slider.setMaximum(99)
         self.train_slider.setOrientation(QtCore.Qt.Horizontal)
         self.gridLayout_2.addWidget(self.train_slider, 1, 1, 1, 1)
+        # Create a SpinBox for epoch
         self.train_epoch = QtWidgets.QSpinBox(self.train_options_frame)
         self.train_epoch.setMaximum(200)
         self.train_epoch.setSingleStep(10)
@@ -336,8 +340,12 @@ class Ui_MainWindow(object):
             self.model_file = model_file[0][0]
 
     def alphabetcheck(self, input):
+        #check if input is longer than 1 character
+        if len(input) > 1:
+            return input
+
         #checks if a string is a letter and if it is in the alphabet it converts it into a number from 0-25
-        #input is always lower case 
+        #input is always lower case. 
         if input.isalpha():
             print(ord(input)-97)
             return str(ord(input)-97)
