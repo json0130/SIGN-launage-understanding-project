@@ -83,9 +83,8 @@ To set up the environment for the Sign Language Understanding Project, follow th
      ```
    - The application will start, and you can interact with the GUI to perform sign language recognition tasks.
   
-    *Note: You have to add pre-trained models folder and dataset.csv in the correct directory.
-   - Both pre-trained models folder and the dataset.csv file should be inside the App directory.
-   - These files can be found in our zip file.
+    *Note: You have to copy `pretrained_models` folder and `dataset.csv` into the project root directory: `/project-python-sunshine-group-23` 
+   - These files can be found in our canvas submitted zip file.
 
 8. Select the preferred setting and start the training.
 
