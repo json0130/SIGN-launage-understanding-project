@@ -102,16 +102,29 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.data_file_button)
         spacerItem1 = QtWidgets.QSpacerItem(191, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem1)
+
+        # Create a Title for the images                          
         self.data_image_title = QtWidgets.QLabel(self.load)
-        self.data_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
-        self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        self.data_image_title.setGeometry(QtCore.QRect(30, 125, 91, 16))
+        self.data_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")  
+
+        #Create a Search bar for the data set
+        self.data_search = QtWidgets.QLineEdit(self.load)
+        self.data_search.setGeometry(QtCore.QRect(30, 147, 200, 25))
+        self.data_search.setStyleSheet("QLineEdit {background-color: #333333; color: white; border: 1px solid #345CC1;}")
+        self.data_search.setPlaceholderText("Search")
+        self.data_search.textChanged.connect(self.perform_search)
+        self.data_search.setClearButtonEnabled(True)                           
 
         # Create Scroll Area
         self.scroll = QtWidgets.QScrollArea(self.load)
-        self.scroll.setGeometry(QtCore.QRect(30, 160, 541, 551))
+        self.scroll.setGeometry(QtCore.QRect(30, 180, 541, 580))
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        
+        # Create a list to hold the image widgets
+        self.data_image_widgets = []
 
         # Create a widget to hold the grid layout 
         self.grid_widget = QtWidgets.QWidget()
@@ -269,12 +282,32 @@ class Ui_MainWindow(object):
         self.test_button_title.setGeometry(QtCore.QRect(30, 30, 141, 16))
         self.test_button_title.setStyleSheet("QLabel {color: white; font-weight: bold;}")
 
+        # Create a Title for the Scroll area
+        self.test_image_title = QtWidgets.QLabel(self.test)
+        self.test_image_title.setGeometry(QtCore.QRect(30, 125, 91, 16))
+        self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+
+        # Create a refresh clickable label
+        self.refresh_label = ClickLabel(self.test)
+        self.refresh_label.setGeometry(QtCore.QRect(120, 125, 140, 16))
+        self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
+        self.refresh_label.clicked.connect(self.update_test_grid)
+
+        #Create a Search bar for the data set
+        self.test_search = QtWidgets.QLineEdit(self.test)
+        self.test_search.setGeometry(QtCore.QRect(30, 147, 200, 25))
+        self.test_search.setStyleSheet("QLineEdit {background-color: #333333; color: white; border: 1px solid #345CC1;}")
+        self.test_search.setPlaceholderText("Search")
+        self.test_search.textChanged.connect(self.perform_test_search)
+        self.test_search.setClearButtonEnabled(True)  
+
         # Create Scroll Area 
         self.test_scroll = QtWidgets.QScrollArea(self.test)
-        self.test_scroll.setGeometry(QtCore.QRect(30, 160, 541, 551))
+        self.test_scroll.setGeometry(QtCore.QRect(30, 180, 541, 580))
         self.test_scroll.setWidgetResizable(True)
         self.test_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.test_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.test_image_widgets = []
 
         # Create a widget to hold the grid layout 
         self.test_grid_widget = QtWidgets.QWidget()
@@ -283,17 +316,6 @@ class Ui_MainWindow(object):
         self.test_grid.setSpacing(10)
         # Put the GridLayout in the Frame
         self.test_scroll.setWidget(self.test_grid_widget)
-
-        # Create a Title for the Scroll area
-        self.test_image_title = QtWidgets.QLabel(self.test)
-        self.test_image_title.setGeometry(QtCore.QRect(30, 140, 91, 16))
-        self.test_image_title.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
-
-        # Create a refresh clickable label
-        self.refresh_label = ClickLabel(self.test)
-        self.refresh_label.setGeometry(QtCore.QRect(120, 140, 91, 16))
-        self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
-        self.refresh_label.clicked.connect(self.update_test_grid)
         
         self.tabWidget.addTab(self.test, "")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -310,71 +332,148 @@ class Ui_MainWindow(object):
     def loadModel(self):
         self.model_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.pth)")
 
-    # Function to upload files for data set
+    def alphabetcheck(self, input):
+        #checks if a string is a letter and if it is in the alphabet it converts it into a number from 0-25
+        #input is always lower case 
+        if input.isalpha():
+            print(ord(input)-97)
+            return str(ord(input)-97)
+        else:
+            return input
+    
+    def perform_search(self):
+        file_path = 'images'
+        # Check if the file path exists
+        if not os.path.exists(file_path):
+            return
+        
+        search_text = self.data_search.text().strip().lower()
+        search_text = self.alphabetcheck(search_text)
+
+        # Check if seach test is empty
+        if not search_text:
+            for label, image_file in self.data_image_widgets:
+                label.setVisible(True)
+            return
+
+        for label, image_file in self.data_image_widgets:
+            if not image_file.startswith('label_' + search_text +'_'):
+                label.setVisible(False)
+            else:
+                label.setVisible(True)
+
+    def perform_test_search(self):
+        file_path = 'test_images'
+        # Check if the file path exists
+        if not os.path.exists(file_path):
+            return
+        
+        search_text = self.test_search.text().strip().lower()
+        search_text = self.alphabetcheck(search_text)
+
+        # Check if seach test is empty
+        if not search_text:
+            for label, image_file in self.test_image_widgets:
+                label.setVisible(True)
+            return
+
+        for label, image_file in self.test_image_widgets:
+            if not image_file.startswith('label_' + search_text +'_'):
+                label.setVisible(False)
+            else:
+                label.setVisible(True)
+            
     def uploadFiles(self):
         #accessing the file path to pictures
-        file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
+        self.image_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
+        self.loadImages()
 
-        if file and file[0]:
-            self.dataset_file_path = file[0][0]
-            # Print file path
-            print(self.dataset_file_path)
-            number_of_images = csv_to_images(self.dataset_file_path, 'images', (28, 28))
-            # Add AI model to train the data set HERE ?
-
+    def loadImages(self):
+        if self.image_file and self.image_file[0]:
+            file_path = self.image_file[0][0]
+            
             # Clean the grid layout
             while self.data_grid.count():
                 child = self.data_grid.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
 
+            # Setting up the grid layout
+            number_of_images = csv_to_images(file_path, 'images', (28, 28))
             number_of_images = math.ceil(number_of_images/4)
-
             positions = [(i, j) for i in range(number_of_images) for j in range(4)]
+            self.data_image_widgets.clear()
+
             for position, image in zip(positions, os.listdir('images')):
                 image_path = os.path.join('images', image)
                 image_data = open(image_path, 'rb').read()  # Read image data as bytes
                 
                 # Create a QLabel to hold images  
-                QLabel = QtWidgets.QLabel()
-                QLabel.setFixedSize(90, 90)
+                Label = QtWidgets.QLabel()
+                Label.setFixedSize(90, 90)
+
                 # Create a QPixmap to display images                 
-                self.qp = QPixmap()
-                self.qp.loadFromData(image_data)
-                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-                QLabel.setPixmap(self.qp)
+                qp = QPixmap()
+                qp.loadFromData(image_data)
+                qp = qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+                Label.setPixmap(qp)
 
                  # Add the QLabel to the GridLayout
-                self.data_grid.addWidget(QLabel, *position)  
+                self.data_grid.addWidget(Label, *position)  
+                self.data_image_widgets.append((Label, image))
 
             self.grid_widget.setLayout(self.data_grid)       
                  
-	# Funtion to upload files for test set 
     def selectToTest(self):
          #accessing the file path to pictures
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
-
+        self.update_test_grid(file)
+    
+    def update_test_grid(self, file):
         if file and file[0]:
             file_path = file[0][0]
-            print(file[0][0])
-            number_of_images = csv_to_images(file_path, 'test_images', (28, 28))
 
-            number_of_images = math.ceil(number_of_images/4)
+            # Check if the file path exists
+            if not os.path.exists(file_path):
+                return
 
+            csv_to_images(file_path, 'test_images', (28, 28))
+            file_size = len(os.listdir('test_images'))
+            self.test_image_widgets.clear()
+            
             # Clean the grid layout
             while self.test_grid.count():
                 child = self.test_grid.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
-
-            positions = [(i, j) for i in range(number_of_images) for j in range(4)]
+            
+            positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
             for position, image in zip(positions, os.listdir('test_images')):
                 image_path = os.path.join('test_images', image)
-                image_data = open(image_path, 'rb').read()  # Read image data as bytes
+
+                # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
+                if not image.startswith('label_'):
+                    img = Image.open(image_path)
+                    
+                    # Formatting the image
+                    img = img.convert('L')
+                    img = img.resize((28, 28))
+                    left = int(img.size[0]/2-80/2)
+                    upper = int(img.size[1]/2-80/2)
+                    right = left +80
+                    lower = upper + 80
+                    img.crop((left, upper,right,lower))
+                    
+                    # Overwrite the original image
+                    img.save(image_path)
+
+                # Read image data as bytes
+                image_data = open(image_path, 'rb').read()  
                 
                 # Create a ClickLabel to hold images  
                 ClickLabel = ClickableLabel(image_path)
                 ClickLabel.setFixedSize(90, 90)
+
                 # Create a QPixmap to display images                 
                 self.qp = QPixmap()
                 self.qp.loadFromData(image_data)
@@ -384,67 +483,15 @@ class Ui_MainWindow(object):
                 # Connect the click signal
                 ClickLabel.clicked.connect(self.labelClicked)
 
+                #check if the image is already in the list
+                if (ClickLabel, image) not in self.test_image_widgets:
+                    self.test_image_widgets.append((ClickLabel, image))
+
                 # Add the ClickLabel to the GridLayout
-                self.test_grid.addWidget(ClickLabel, *position)  
+                self.test_grid.addWidget(ClickLabel, *position) 
+                self.test_image_widgets.append((ClickLabel, image))
 
             self.test_grid_widget.setLayout(self.test_grid)
-            self.update_test_grid()
-    
-    def update_test_grid(self):
-        # Add new images to the grid
-        file_path = 'test_images'
-        # Check if the file path exists
-        if not os.path.exists(file_path):
-            return
-
-        file_size = len(os.listdir(file_path))
-        # add the new images to the end of the grid
-        
-        while self.test_grid.count():
-            child = self.test_grid.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
-        
-        positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
-        for position, image in zip(positions, os.listdir('test_images')):
-            image_path = os.path.join('test_images', image)
-            # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
-            if not image.startswith('label_'):
-                print("balls are every where you look")
-                img = Image.open(image_path)
-                # Convert to grayscale
-                img = img.convert('L')
-                # Resize to 28x28
-                img = img.resize((28, 28))
-                
-                left = int(img.size[0]/2-80/2)
-                upper = int(img.size[1]/2-80/2)
-                right = left +80
-                lower = upper + 80
-                # convert the image to 28 x 28 grey scale image
-                img.crop((left, upper,right,lower))
-                
-                # Overwrite the original image
-                img.save(image_path)
-
-            image_data = open(image_path, 'rb').read()  # Read image data as bytes
-            
-            # Create a ClickLabel to hold images  
-            ClickLabel = ClickableLabel(image_path)
-            ClickLabel.setFixedSize(90, 90)
-            # Create a QPixmap to display images                 
-            self.qp = QPixmap()
-            self.qp.loadFromData(image_data)
-            self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-            ClickLabel.setPixmap(self.qp)
-
-            # Connect the click signal
-            ClickLabel.clicked.connect(self.labelClicked)
-
-            # Add the ClickLabel to the GridLayout
-            self.test_grid.addWidget(ClickLabel, *position)  
-
-        self.test_grid_widget.setLayout(self.test_grid)
 
     def check_model_selection(self):
         selected_model = self.train_combobox.currentText()
@@ -543,9 +590,6 @@ class Ui_MainWindow(object):
 
     # Function that runs when the label is clicked
     def labelClicked(self, object_path):
-        print("clicked")
-        print(object_path)
-        print("clicked")
         results = resnet_app_test.predict_image(object_path)
 
         self.window = QtWidgets.QMainWindow()
@@ -571,12 +615,12 @@ class Ui_MainWindow(object):
         self.train_ratio_label.setText(_translate("MainWindow", "0                                                 50                                              99"))
         self.train_model_title.setText(_translate("MainWindow", "                                           Select Model"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.train), _translate("MainWindow", "  Train  "))
-        self.test_file_button.setText(_translate("MainWindow", "Select Dataset"))
+        self.test_file_button.setText(_translate("MainWindow", "Select Test Dataset"))
         self.test_webcam_button.setText(_translate("MainWindow", "Open Webcam"))
-        self.test_live_button.setText(_translate("MainWindow", "Open Livecam"))
+        self.test_live_button.setText(_translate("MainWindow", "Live Testing"))
         self.test_button_title.setText(_translate("MainWindow", "Select Method to Test"))
         self.test_image_title.setText(_translate("MainWindow", "Data Set:"))
-        self.refresh_label.setText(_translate("MainWindow", "Refresh"))
+        self.refresh_label.setText(_translate("MainWindow", "Refresh Images"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.test), _translate("MainWindow", "  Test  "))
 
 if __name__ == "__main__":

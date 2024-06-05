@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import os
 import random
 
-def csv_to_images(csvfile, output_dir, image_shape=(28, 28), num_images_per_label=16):
+def csv_to_images(csvfile, output_dir, image_shape=(28, 28), num_images_per_label=8):
     # Create the output directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
