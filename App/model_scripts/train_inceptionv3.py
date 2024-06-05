@@ -140,6 +140,8 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
 
         print(f"Accuracy on test set: {(correct / total) * 100}%")
 
+        # send signal
+
     # save the trained model
     torch.save(model.state_dict(), 'asl_inceptionv3_model.pth')
 

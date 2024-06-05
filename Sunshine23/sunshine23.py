@@ -101,7 +101,7 @@ def main():
     # Create datasets and data loaders
     train_dataset = ASLDataset(train_data, transform=data_transform)
     test_dataset = ASLDataset(test_data, transform=data_transform)
-    batch_size = 8
+    batch_size = 80
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
@@ -115,7 +115,7 @@ def main():
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Training loop
-    num_epochs = 5
+    num_epochs = 30
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 

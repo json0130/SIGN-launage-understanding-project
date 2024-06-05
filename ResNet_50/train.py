@@ -66,7 +66,7 @@ def main():
     # Create datasets and data loaders
     train_dataset = ASLDataset(train_data, transform=data_transform)
     test_dataset = ASLDataset(test_data, transform=data_transform)
-    batch_size = 8  # Reduced batch size for CPU training
+    batch_size = 100  # Reduced batch size for CPU training
 
     num_cores = os.cpu_count()
     num_workers = max(1, num_cores - 1)
@@ -83,7 +83,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     # Training loop
-    num_epochs = 5  # Reduced number of epochs for CPU training
+    num_epochs = 30  # Reduced number of epochs for CPU training
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 

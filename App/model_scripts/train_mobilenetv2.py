@@ -32,7 +32,7 @@ class ASLModel(nn.Module):
 # Prepare data generator for standardizing frames before sending them into the model
 data_transform = transforms.Compose([
     transforms.ToTensor(),
-    transforms.Resize((224, 224)),  # Resize for MobileNet
+    transforms.Resize((224, 224)),
     transforms.RandomHorizontalFlip(),
     transforms.RandomRotation(10),
     transforms.RandomCrop(200),

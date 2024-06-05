@@ -66,7 +66,7 @@ train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 # Create datasets and data loaders
 train_dataset = ASLDataset(train_data, transform=data_transform)
 test_dataset = ASLDataset(test_data, transform=data_transform)
-batch_size = 8  # Reduced batch size for CPU training
+batch_size = 64  # Reduced batch size for CPU training
 
 num_cores = os.cpu_count()
 num_workers = max(1, num_cores - 1)
@@ -135,6 +135,9 @@ for epoch in range(num_epochs):
     val_accuracies.append(val_accuracy)
 
     print(f"Accuracy on test set: {(correct / total) * 100}%")
+
+# save the trained model
+torch.save(model.state_dict(), 'asl_inceptionv3_model.pth')
 
 # Plot validation accuracy graph 
 plt.figure(figsize=(8, 6)) 
