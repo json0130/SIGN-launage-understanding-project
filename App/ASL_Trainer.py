@@ -65,7 +65,8 @@ class Ui_MainWindow(object):
                               "QToolButton:pressed { background: #1F1F1F; }")
         MainWindow.addToolBar(toolbar)
 
-        # Create photo action
+        # Create Load model action
+        self.model_file = None
         load_action = QAction("Load Model", MainWindow) 
         load_action.setStatusTip("This will load a model") 
         load_action.setToolTip("Load Model") 
@@ -291,7 +292,7 @@ class Ui_MainWindow(object):
         self.refresh_label = ClickLabel(self.test)
         self.refresh_label.setGeometry(QtCore.QRect(120, 125, 140, 16))
         self.refresh_label.setStyleSheet("QLabel {color: white; font-weight: bold;}\n")
-        self.refresh_label.clicked.connect(self.update_test_grid)
+        self.refresh_label.clicked.connect(self.refresh_test_grid)
 
         #Create a Search bar for the data set
         self.test_search = QtWidgets.QLineEdit(self.test)
@@ -326,12 +327,13 @@ class Ui_MainWindow(object):
         # added
         self.training_plot_window = None
 
-
 # =================================|| Functions ||=================================
     # Function to load model
     def loadModel(self):
         model_file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Model files (*.pth)")
-        self.model_file = model_file[0][0]
+
+        if model_file and model_file[0]:
+            self.model_file = model_file[0][0]
 
     def alphabetcheck(self, input):
         #checks if a string is a letter and if it is in the alphabet it converts it into a number from 0-25
@@ -430,9 +432,12 @@ class Ui_MainWindow(object):
          #accessing the file path to pictures
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
         self.update_test_grid(file)
+
+    def refresh_test_grid(self):
+        self.update_test_grid('null', True)
     
-    def update_test_grid(self, file):
-        if file and file[0]:
+    def update_test_grid(self, file, skip=False):
+        if file and file[0] and not skip:
             file_path = file[0][0]
 
             # Check if the file path exists
@@ -440,60 +445,61 @@ class Ui_MainWindow(object):
                 return
 
             csv_to_images(file_path, 'test_images', (28, 28))
-            file_size = len(os.listdir('test_images'))
-            self.test_image_widgets.clear()
-            
-            # Clean the grid layout
-            while self.test_grid.count():
-                child = self.test_grid.takeAt(0)
-                if child.widget():
-                    child.widget().deleteLater()
-            
-            positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
-            for position, image in zip(positions, os.listdir('test_images')):
-                image_path = os.path.join('test_images', image)
 
-                # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
-                if not image.startswith('label_'):
-                    img = Image.open(image_path)
-                    
-                    # Formatting the image
-                    img = img.convert('L')
-                    img = img.resize((28, 28))
-                    left = int(img.size[0]/2-80/2)
-                    upper = int(img.size[1]/2-80/2)
-                    right = left +80
-                    lower = upper + 80
-                    img.crop((left, upper,right,lower))
-                    
-                    # Overwrite the original image
-                    img.save(image_path)
+        file_size = len(os.listdir('test_images'))
+        self.test_image_widgets.clear()
+        
+        # Clean the grid layout
+        while self.test_grid.count():
+            child = self.test_grid.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        
+        positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
+        for position, image in zip(positions, os.listdir('test_images')):
+            image_path = os.path.join('test_images', image)
 
-                # Read image data as bytes
-                image_data = open(image_path, 'rb').read()  
+            # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
+            if not image.startswith('label_'):
+                img = Image.open(image_path)
                 
-                # Create a ClickLabel to hold images  
-                ClickLabel = ClickableLabel(image_path)
-                ClickLabel.setFixedSize(90, 90)
+                # Formatting the image
+                img = img.convert('L')
+                img = img.resize((28, 28))
+                left = int(img.size[0]/2-80/2)
+                upper = int(img.size[1]/2-80/2)
+                right = left +80
+                lower = upper + 80
+                img.crop((left, upper,right,lower))
+                
+                # Overwrite the original image
+                img.save(image_path)
 
-                # Create a QPixmap to display images                 
-                self.qp = QPixmap()
-                self.qp.loadFromData(image_data)
-                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-                ClickLabel.setPixmap(self.qp)
+            # Read image data as bytes
+            image_data = open(image_path, 'rb').read()  
+            
+            # Create a ClickLabel to hold images  
+            ClickLabel = ClickableLabel(image_path)
+            ClickLabel.setFixedSize(90, 90)
 
-                # Connect the click signal
-                ClickLabel.clicked.connect(self.labelClicked)
+            # Create a QPixmap to display images                 
+            self.qp = QPixmap()
+            self.qp.loadFromData(image_data)
+            self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+            ClickLabel.setPixmap(self.qp)
 
-                #check if the image is already in the list
-                if (ClickLabel, image) not in self.test_image_widgets:
-                    self.test_image_widgets.append((ClickLabel, image))
+            # Connect the click signal
+            ClickLabel.clicked.connect(self.labelClicked)
 
-                # Add the ClickLabel to the GridLayout
-                self.test_grid.addWidget(ClickLabel, *position) 
+            #check if the image is already in the list
+            if (ClickLabel, image) not in self.test_image_widgets:
                 self.test_image_widgets.append((ClickLabel, image))
 
-            self.test_grid_widget.setLayout(self.test_grid)
+            # Add the ClickLabel to the GridLayout
+            self.test_grid.addWidget(ClickLabel, *position) 
+            self.test_image_widgets.append((ClickLabel, image))
+
+        self.test_grid_widget.setLayout(self.test_grid)
 
     def check_model_selection(self):
         selected_model = self.train_combobox.currentText()
@@ -594,13 +600,24 @@ class Ui_MainWindow(object):
     def labelClicked(self, object_path):
         print("clicked")
         print(object_path)
-        print("clicked")
-        results = resnet_app_test.predict_image(object_path, self.model_file)
 
-        self.window = QtWidgets.QMainWindow()
-        self.ui = Ui_Results()
-        self.ui.setupUi(self.window, object_path, results)
-        self.window.show()
+        # Check if model file is not empty
+        if self.model_file is not None:
+            results = resnet_app_test.predict_image(object_path, self.model_file)
+
+            self.window = QtWidgets.QMainWindow()
+            self.ui = Ui_Results()
+            self.ui.setupUi(self.window, object_path, results)
+            self.window.show()
+        else:
+            # Show error message
+            error_msg = QMessageBox()
+            error_msg.setIcon(QMessageBox.Critical)
+            error_msg.setText("No model file selected")
+            error_msg.setInformativeText("Please load a model file before testing.")
+            error_msg.setWindowTitle("Error")
+            error_msg.exec_()
+
 
 # =================================|| UI ||=================================
 
