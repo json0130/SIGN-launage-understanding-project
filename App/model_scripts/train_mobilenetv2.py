@@ -73,7 +73,7 @@ class ASLDataset(Dataset):
        return image, label_idx
 
 
-def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):
+def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None, update_progress_signal=None, worker=None):
     print("Commencing training for MobileNet_v2")
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
     # Load the dataset
@@ -121,12 +121,20 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):
 
     print(f"Starting training loop with batch_size: {batch_size} for {num_epochs} epochs")
     for epoch in range(num_epochs):
+        if worker and worker.stop_requested:
+            print("Training stopped")
+            break
+
         running_loss = 0.0
         model.train()
         total_batches = len(train_loader)
 
 
         for batch_idx, (images, labels) in enumerate(train_loader):
+            if worker and worker.stop_requested:
+                print("Training stopped")
+                break
+
             images = images.to(device)
             labels = labels.to(device)
             
@@ -171,6 +179,8 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):
 
         if update_plot_signal:
             update_plot_signal.emit(train_losses, val_accuracies, epoch)
+        if update_progress_signal:
+            update_progress_signal.emit(int((epoch + 1) / num_epochs * 100))
 
     # save the trained model
     torch.save(model.state_dict(), 'asl_mobilenet_model.pth')

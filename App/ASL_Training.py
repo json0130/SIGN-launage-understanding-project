@@ -5,12 +5,15 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import matplotlib.pyplot as plt
 
 class Ui_training_session(object):
-    def setupUi(self, training_session, data):
+    def setupUi(self, training_session, worker):
         training_session.resize(800, 600)
         training_session.setMinimumSize(QtCore.QSize(800, 600))
         training_session.setStyleSheet("QMainWindow {background: #4d4d4d;}\n")
         self.centralwidget = QtWidgets.QWidget(training_session)
         training_session.setCentralWidget(self.centralwidget)
+
+        # Store the worker reference
+        self.worker = worker
 
         # Create the main layout
         self.main_layout = QVBoxLayout(self.centralwidget)
@@ -47,7 +50,7 @@ class Ui_training_session(object):
         # Create a progress bar
         self.progressBar = QtWidgets.QProgressBar(self.options_frame)
         self.progressBar.setStyleSheet("QProgressBar {color: white;}")
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.gridLayout.addWidget(self.progressBar, 1, 3, 1, 1)
 
         # Create a push button
@@ -58,6 +61,9 @@ class Ui_training_session(object):
                                         "QPushButton:hover {background-color: #2A4BA0;}\n"
                                         "QPushButton:pressed {background-color: #1E3C8C;}")
         self.gridLayout.addWidget(self.pushButton_4, 3, 3, 1, 1)
+
+        # Connect stop button to stop the worker
+        self.pushButton_4.clicked.connect(self.stop_training)
         
         # Add spacer items
         spacerItem = QSpacerItem(40, 20, QSizePolicy.Fixed, QSizePolicy.Minimum)
@@ -102,13 +108,11 @@ class Ui_training_session(object):
 
         # Update the plots with new data
         self.ax1.plot(epochs, train_losses, label='Training Loss')
-        self.ax1.set_title(f'Training Loss - Epoch {epoch + 1}')
         self.ax1.set_xlabel('Epoch')
         self.ax1.set_ylabel('Loss')
         self.ax1.legend()
 
         self.ax2.plot(epochs, val_accuracies, label='Validation Accuracy')
-        self.ax2.set_title(f'Validation Accuracy - Epoch {epoch + 1}')
         self.ax2.set_xlabel('Epoch')
         self.ax2.set_ylabel('Accuracy')
         self.ax2.legend()
@@ -116,12 +120,8 @@ class Ui_training_session(object):
         # Redraw the canvas
         self.canvas.draw()
 
+    def update_progress(self, value):
+        self.progressBar.setValue(value)
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    training_session = QtWidgets.QMainWindow()
-    ui = Ui_training_session()
-    ui.setupUi(training_session, None)
-    training_session.show()
-    sys.exit(app.exec_())
+    def stop_training(self):
+        self.worker.stop()

@@ -16,10 +16,9 @@ from PIL import Image
 
 from model_scripts import train_mobilenetv2, train_inceptionv3
 
-
-
 class TrainingWorker(QThread):
     update_plot = pyqtSignal(list, list, int)
+    update_progress = pyqtSignal(int)
     finished = pyqtSignal()
 
     def __init__(self, train_func, batch_size, epochs, train_test_ratio):
@@ -28,11 +27,13 @@ class TrainingWorker(QThread):
         self.batch_size = batch_size
         self.epochs = epochs
         self.train_test_ratio = train_test_ratio
+        self.stop_requested = False
 
     def run(self):
-        self.train_func(self.batch_size, self.epochs, self.train_test_ratio, self.update_plot)
-        self.finished.emit()
+        self.train_func(self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
 
+    def stop(self):
+        self.stop_requested = True
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -58,7 +59,7 @@ class Ui_MainWindow(object):
                               "QToolButton:pressed { background: #1F1F1F; }")
         MainWindow.addToolBar(toolbar)
 
-        # Creat photo action
+        # Create photo action
         load_action = QAction("Load Model", MainWindow) 
         load_action.setStatusTip("This will load a model") 
         load_action.setToolTip("Load Model") 
@@ -434,18 +435,23 @@ class Ui_MainWindow(object):
         # Create and start the worker thread
         self.worker = TrainingWorker(train_function, batch_size, epochs, train_test_ratio)
         self.worker.update_plot.connect(self.updatePlot)
+        self.worker.update_progress.connect(self.updateProgress)
         self.worker.finished.connect(self.onTrainingFinished)
         self.worker.start()
 
         self.window = QtWidgets.QMainWindow()
         self.ui = Ui_training_session()
-        self.ui.setupUi(self.window, (batch_size, epochs, train_test_ratio, selected_model))
+        self.ui.setupUi(self.window, self.worker)
         self.window.show()
         self.training_plot_window = self.window
 
     def updatePlot(self, train_losses, val_accuracies, epoch):
         if self.training_plot_window:
             self.ui.update_plot(train_losses, val_accuracies, epoch)
+
+    def updateProgress(self, value):
+        if self.training_plot_window:
+            self.ui.update_progress(value)
 
     def onTrainingFinished(self):
         print("Training completed successfully")
@@ -482,7 +488,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ASL TRAINER"))
-        self.data_file_button.setText(_translate("MainWindow", "Uplaod Dataset"))
+        self.data_file_button.setText(_translate("MainWindow", "Upload Dataset"))
         self.data_image_title.setText(_translate("MainWindow", "Data Set:"))
         self.data_button_title.setText(_translate("MainWindow", "Select Images For Data Set"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load), _translate("MainWindow", "  Data  "))
@@ -519,4 +525,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-    
