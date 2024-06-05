@@ -155,6 +155,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
             val_accuracy = correct / total
         val_accuracies.append(val_accuracy)
 
+        # Prints out the accuracy on a test dataset.
         print(f"Accuracy on test set: {val_accuracy * 100}%")
 
         if update_plot_signal:
