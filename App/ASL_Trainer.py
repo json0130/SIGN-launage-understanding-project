@@ -313,7 +313,7 @@ class Ui_MainWindow(object):
         #input is always lower case 
         if input.isalpha():
             print(ord(input)-97)
-            return ord(input)-97
+            return str(ord(input)-97)
         else:
             return input
     
@@ -345,6 +345,7 @@ class Ui_MainWindow(object):
             return
         
         search_text = self.test_search.text().strip().lower()
+        search_text = self.alphabetcheck(search_text)
 
         # Check if seach test is empty
         if not search_text:
@@ -525,7 +526,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "ASL TRAINER"))
-        self.data_file_button.setText(_translate("MainWindow", "Uplaod Dataset"))
+        self.data_file_button.setText(_translate("MainWindow", "Upload Dataset"))
         self.data_image_title.setText(_translate("MainWindow", "Data Set:"))
         self.data_button_title.setText(_translate("MainWindow", "Select Images For Data Set"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.load), _translate("MainWindow", "  Data  "))
