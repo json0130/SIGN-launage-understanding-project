@@ -129,7 +129,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
                 progress = int((current_step / total_steps) * 100)
                 update_progress_signal.emit(progress)
 
-            # Print progress 
+            # Print progress of each process by displaying the epoch number, batch and loss
             if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches: 
                 progress = (batch_idx + 1) / total_batches * 100 
                 print(f"Epoch [{epoch+1}/{num_epochs}] Batch [{batch_idx+1}/{total_batches}] Loss: {running_loss / (batch_idx + 1):.4f} Progress: {progress:.2f}%") 
@@ -139,7 +139,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
         print(f"Epoch {epoch+1}, Loss: {running_loss / len(train_loader)}")
 
 
-        # Testing loop
+        # Testing loop: it test the trained model with the test dataset.
         model.eval()
         correct = 0
         total = 0
@@ -161,6 +161,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
             val_accuracy = correct / total
         val_accuracies.append(val_accuracy)
 
+        # Prints out the accuracy on a test dataset.
         print(f"Accuracy on test set: {val_accuracy * 100}%")
 
         if update_plot_signal:
