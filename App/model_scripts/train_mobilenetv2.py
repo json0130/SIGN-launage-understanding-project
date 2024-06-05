@@ -26,15 +26,6 @@ class ASLModel(nn.Module):
    def forward(self, x):
        return self.mobilenet(x)
 
-# Prepare data generator for standardizing frames before sending them into the model
-data_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(10),
-    transforms.RandomCrop(200),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
 
 # Create a custom dataset
 class ASLDataset(Dataset):
@@ -69,6 +60,15 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
 
     data = pd.read_csv(file_path, low_memory=False)
+    # Prepare data generator for standardizing frames before sending them into the model
+    data_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(10),
+        transforms.RandomCrop(200),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
     print(f"Loaded dataset")
 
     train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
@@ -138,6 +138,9 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
         total = 0
         with torch.no_grad():
             for images, labels in test_loader:
+                if worker and worker.stop_requested:
+                    print("Training stopped")
+                    break
                 images = images.to(device)
                 labels = labels.to(device)
                 
@@ -157,9 +160,6 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
     torch.save(model.state_dict(), 'user_trained_models/asl_mobilenet_model.pth')
     print("Model Saved")
 
-    # # Emit finished signal
-    # if worker:
-    #     worker.finished.emit()
 
 def main():
     parser = argparse.ArgumentParser(description='Training Script')
