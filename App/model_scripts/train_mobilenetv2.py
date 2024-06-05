@@ -149,10 +149,12 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        val_accuracy = correct / total
+        val_accuracy = 0
+        if total != 0:
+            val_accuracy = correct / total
         val_accuracies.append(val_accuracy)
 
-        print(f"Accuracy on test set: {(correct / total) * 100}%")
+        print(f"Accuracy on test set: {val_accuracy * 100}%")
 
         if update_plot_signal:
             update_plot_signal.emit(train_losses, val_accuracies, epoch)
