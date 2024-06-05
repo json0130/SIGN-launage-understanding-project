@@ -310,8 +310,10 @@ class Ui_MainWindow(object):
 
     def alphabetcheck(self, input):
         #checks if a string is a letter and if it is in the alphabet it converts it into a number from 0-25
+        #input is always lower case 
         if input.isalpha():
-            return ord(input.lower()) - 97
+            print(ord(input)-97)
+            return ord(input)-97
         else:
             return input
     
@@ -400,103 +402,71 @@ class Ui_MainWindow(object):
     def selectToTest(self):
          #accessing the file path to pictures
         file = QtWidgets.QFileDialog.getOpenFileNames(None, 'Open file', 'c:\\',"Image files (*.csv)")
-
+        self.update_test_grid(file)
+    
+    def update_test_grid(self, file):
         if file and file[0]:
             file_path = file[0][0]
 
+            # Check if the file path exists
+            if not os.path.exists(file_path):
+                return
+
+            csv_to_images(file_path, 'test_images', (28, 28))
+            file_size = len(os.listdir('test_images'))
+            self.test_image_widgets.clear()
+            
             # Clean the grid layout
             while self.test_grid.count():
                 child = self.test_grid.takeAt(0)
                 if child.widget():
                     child.widget().deleteLater()
-
-            number_of_images = csv_to_images(file_path, 'test_images', (28, 28))
-            number_of_images = math.ceil(number_of_images/4)
-            positions = [(i, j) for i in range(number_of_images) for j in range(4)]
-            self.test_image_widgets.clear()
-
+            
+            positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
             for position, image in zip(positions, os.listdir('test_images')):
                 image_path = os.path.join('test_images', image)
-                image_data = open(image_path, 'rb').read()  # Read image data as bytes
+
+                # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
+                if not image.startswith('label_'):
+                    img = Image.open(image_path)
+                    
+                    # Formatting the image
+                    img = img.convert('L')
+                    img = img.resize((28, 28))
+                    left = int(img.size[0]/2-80/2)
+                    upper = int(img.size[1]/2-80/2)
+                    right = left +80
+                    lower = upper + 80
+                    img.crop((left, upper,right,lower))
+                    
+                    # Overwrite the original image
+                    img.save(image_path)
+
+                # Read image data as bytes
+                image_data = open(image_path, 'rb').read()  
                 
                 # Create a ClickLabel to hold images  
                 ClickLabel = ClickableLabel(image_path)
                 ClickLabel.setFixedSize(90, 90)
+
                 # Create a QPixmap to display images                 
-                qp = QPixmap()
-                qp.loadFromData(image_data)
-                qp = qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-                ClickLabel.setPixmap(qp)
+                self.qp = QPixmap()
+                self.qp.loadFromData(image_data)
+                self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
+                ClickLabel.setPixmap(self.qp)
 
                 # Connect the click signal
                 ClickLabel.clicked.connect(self.labelClicked)
 
+                #check if the image is already in the list
+                if (ClickLabel, image) not in self.test_image_widgets:
+                    self.test_image_widgets.append((ClickLabel, image))
+
                 # Add the ClickLabel to the GridLayout
-                self.test_grid.addWidget(ClickLabel, *position)  
-
-            self.test_grid_widget.setLayout(self.test_grid)
-            self.update_test_grid()
-    
-    def update_test_grid(self):
-        file_path = 'test_images'
-
-        # Check if the file path exists
-        if not os.path.exists(file_path):
-            return
-
-        file_size = len(os.listdir(file_path))
-        
-        # Clean the grid layout
-        while self.test_grid.count():
-            child = self.test_grid.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
-        
-        positions = [(i,j) for i in range(math.ceil(file_size/4)) for j in range(4)]
-        for position, image in zip(positions, os.listdir('test_images')):
-            image_path = os.path.join('test_images', image)
-
-            # if the image's name does not start with 'converted_', convert into 28 x 28 grey scale image
-            if not image.startswith('label_'):
-                img = Image.open(image_path)
-                
-                # Formatting the image
-                img = img.convert('L')
-                img = img.resize((28, 28))
-                left = int(img.size[0]/2-80/2)
-                upper = int(img.size[1]/2-80/2)
-                right = left +80
-                lower = upper + 80
-                img.crop((left, upper,right,lower))
-                
-                # Overwrite the original image
-                img.save(image_path)
-
-            # Read image data as bytes
-            image_data = open(image_path, 'rb').read()  
-            
-            # Create a ClickLabel to hold images  
-            ClickLabel = ClickableLabel(image_path)
-            ClickLabel.setFixedSize(90, 90)
-
-            # Create a QPixmap to display images                 
-            self.qp = QPixmap()
-            self.qp.loadFromData(image_data)
-            self.qp = self.qp.scaled(90, 90, QtCore.Qt.KeepAspectRatio)
-            ClickLabel.setPixmap(self.qp)
-
-            # Connect the click signal
-            ClickLabel.clicked.connect(self.labelClicked)
-
-            #check if the image is already in the list
-            if (ClickLabel, image) not in self.test_image_widgets:
+                self.test_grid.addWidget(ClickLabel, *position) 
                 self.test_image_widgets.append((ClickLabel, image))
 
-            # Add the ClickLabel to the GridLayout
-            self.test_grid.addWidget(ClickLabel, *position) 
-            self.test_image_widgets.append((ClickLabel, image))
-
-        self.test_grid_widget.setLayout(self.test_grid)
+            self.test_grid_widget.setLayout(self.test_grid)
 
     # Function that opens another window 
     def startTraining(self):
@@ -543,9 +513,6 @@ class Ui_MainWindow(object):
 
     # Function that runs when the label is clicked
     def labelClicked(self, object_path):
-        print("clicked")
-        print(object_path)
-        print("clicked")
         results = resnet_app_test.predict_image(object_path)
 
         self.window = QtWidgets.QMainWindow()
