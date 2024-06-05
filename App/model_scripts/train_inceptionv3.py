@@ -167,7 +167,7 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
             update_plot_signal.emit(train_losses, val_accuracies, epoch)
 
     # save the trained model
-    torch.save(model.state_dict(), 'user_trained_models/asl_inceptionv3_model.pth')
+    torch.save(model.state_dict(), f"user_trained_models/asl_inceptionv3_model_{batch_size}batches_{num_epochs}epochs.pth")
     print("Model Saved")
 
 

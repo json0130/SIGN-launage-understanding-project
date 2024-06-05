@@ -12,6 +12,8 @@ from torchvision.models import MobileNet_V2_Weights
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import argparse
+
 
 # Define the custom CNN model
 class CustomCNN(nn.Module):
@@ -64,15 +66,6 @@ class FeatureConcatModel(nn.Module):
         x = self.fc2(x)
         return x
 
-# Data transformation / Augmentation
-data_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Resize((224, 224)),
-    transforms.RandomHorizontalFlip(),
-    transforms.RandomRotation(10),
-    transforms.RandomCrop(200),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-])
 
 # Create a custom dataset (assuming you have your data in a similar format)
 class ASLDataset(Dataset):
@@ -97,17 +90,30 @@ class ASLDataset(Dataset):
         return image, label
 
 
-def main():
-    # Load the dataset 
-    data = pd.read_csv('../dataset.csv', low_memory=False)
+def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signal=None, update_progress_signal=None, worker=None):
+    print("Commencing training for MobileNet_v2")
+    print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")    # Load the dataset 
+    
+    data = pd.read_csv(file_path, low_memory=False)
+    print(f"Loaded dataset")
 
     # Split the dataset into train and test
     train_data, test_data = train_test_split(data, test_size=0.3, random_state=42)
 
+    # Data transformation / Augmentation
+    data_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(10),
+        transforms.RandomCrop(200),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
     # Create datasets and data loaders
     train_dataset = ASLDataset(train_data, transform=data_transform)
     test_dataset = ASLDataset(test_data, transform=data_transform)
-    batch_size = 100
+    #batch_size = 100
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
@@ -120,20 +126,30 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    num_epochs = 30
+    #num_epochs = 30
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     val_accuracies = []
     train_losses = []
 
+    print(f"Starting training loop with batch_size: {batch_size} for {num_epochs} epochs")
+    total_steps = num_epochs * len(train_loader)
+
     # Training loop
     for epoch in range(num_epochs):
+        if worker and worker.stop_requested:
+            print("Training stopped")
+            break
+
         running_loss = 0.0
         model.train()
         total_batches = len(train_loader)
 
         for batch_idx, (images, labels) in enumerate(train_loader):
+            if worker and worker.stop_requested:
+                print("Training stopped")
+                break
             images = images.to(device)
             labels = labels.to(device)
 
@@ -144,6 +160,11 @@ def main():
             optimizer.step()
 
             running_loss += loss.item()
+
+            if update_progress_signal:
+                current_step = epoch * len(train_loader) + batch_idx + 1
+                progress = int((current_step / total_steps) * 100)
+                update_progress_signal.emit(progress)
 
             # Print progress 
             if (batch_idx + 1) % 10 == 0 or (batch_idx + 1) == total_batches: 
@@ -160,6 +181,9 @@ def main():
         total = 0
         with torch.no_grad():
             for images, labels in test_loader:
+                if worker and worker.stop_requested:
+                    print("Training stopped")
+                    break
                 images = images.to(device)
                 labels = labels.to(device)
 
@@ -168,14 +192,29 @@ def main():
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-        val_accuracy = correct / total
+        val_accuracy = 0
+        if total != 0:
+            val_accuracy = correct / total
         val_accuracies.append(val_accuracy)
 
-        print(f"Accuracy on test set: {(correct / total) * 100}%")
+        print(f"Accuracy on test set: {val_accuracy * 100}%")
+
+        if update_plot_signal:
+            update_plot_signal.emit(train_losses, val_accuracies, epoch)
 
     # Save the trained model
-    torch.save(model.state_dict(), 'feature_concat_model.pth')
+    #torch.save(model.state_dict(), 'feature_concat_model.pth')
+    torch.save(model.state_dict(), f"user_trained_models/feature_concat_model_{batch_size}batches_{num_epochs}epochs.pth")
+    print("Model Saved")
 
+
+def main():
+    parser = argparse.ArgumentParser(description='Training Script')
+    parser.add_argument('batch_size', type=int, help='Batch size for training')
+    parser.add_argument('epochs', type=int, help='Number of epochs for training')
+    parser.add_argument('train_test_ratio', type=float, help='Train/test ratio')
+    args = parser.parse_args()
+    train(args.batch_size, args.epochs, args.train_test_ratio)
 
 if __name__ == '__main__':
     main()

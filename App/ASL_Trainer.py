@@ -14,7 +14,7 @@ from csv_to_images import csv_to_images
 from ClickableQLabel import ClickableLabel, ClickLabel
 from PIL import Image
 
-from model_scripts import train_mobilenetv2, train_inceptionv3
+from model_scripts import train_mobilenetv2, train_inceptionv3, train_resnet50, train_sunshine23
 
 class TrainingWorker(QThread):
     update_plot = pyqtSignal(list, list, int)
@@ -208,8 +208,8 @@ class Ui_MainWindow(object):
         self.model_scripts = {
             "InceptionV3": train_inceptionv3.train,
             "MobileNet_V2": train_mobilenetv2.train,
-            "ResNet_50": "../ResNet_50/train.py",
-            "Sunshine23": "../Sunshine23/sunshine23.py"
+            "ResNet_50": train_resnet50.train,
+            "Sunshine23": train_sunshine23.train,
         }
 
         # Disable the start button initially

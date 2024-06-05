@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import argparse
 
+
 # Define the model architecture
 class ASLModel(nn.Module):
    def __init__(self, num_classes, input_size=224, channels=3):
