@@ -157,6 +157,10 @@ def train(file_path, batch_size, num_epochs, train_test_ratio, update_plot_signa
     torch.save(model.state_dict(), 'user_trained_models/asl_mobilenet_model.pth')
     print("Model Saved")
 
+    # # Emit finished signal
+    # if worker:
+    #     worker.finished.emit()
+
 def main():
     parser = argparse.ArgumentParser(description='Training Script')
     parser.add_argument('batch_size', type=int, help='Batch size for training')

@@ -32,6 +32,7 @@ class TrainingWorker(QThread):
 
     def run(self):
         self.train_func(self.dataset_file_path, self.batch_size, self.epochs, self.train_test_ratio, self.update_plot, self.update_progress, self)
+        self.finished.emit()
 
     def stop(self):
         self.stop_requested = True
@@ -470,6 +471,13 @@ class Ui_MainWindow(object):
 
     def onTrainingFinished(self):
         print("Training completed successfully")
+        # Show information message
+        info_msg = QMessageBox()
+        info_msg.setIcon(QMessageBox.Information)
+        info_msg.setText("Training completed successfully")
+        info_msg.setInformativeText("The training process has finished.")
+        info_msg.setWindowTitle("Training Completed")
+        info_msg.exec_()
 
     def openWebcam(self):
         # Check if an instance of QApplication already exists
