@@ -55,9 +55,13 @@ class ASLDataset(Dataset):
 def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):    # Prepare data generator for standardizing frames before sending them into the model
     print(f"Batch size: {batch_size}, Epochs: {num_epochs}, Train/Test ratio: {train_test_ratio}")
     
+    # Define a composition of image transformations for data preprocessing and augmentation
     data_transform = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((299, 299)),  # Resize for InceptionV3
+        transforms.Resize((224, 224)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(10),
+        transforms.RandomCrop(200),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
@@ -70,7 +74,7 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
     # Create datasets and data loaders
     train_dataset = ASLDataset(train_data, transform=data_transform)
     test_dataset = ASLDataset(test_data, transform=data_transform)
-    batch_size = 8  # Reduced batch size for CPU training
+    batch_size = 64
 
     num_cores = os.cpu_count()
     num_workers = max(1, num_cores - 1)
@@ -86,14 +90,14 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    # Training loop
-    num_epochs = 30  # Reduced number of epochs for CPU training
+    num_epochs = 30  
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
     val_accuracies = []
     train_losses = []
 
+    # Training loop
     for epoch in range(num_epochs):
         running_loss = 0.0
         model.train()
@@ -144,25 +148,6 @@ def train(batch_size, num_epochs, train_test_ratio, update_plot_signal=None):   
 
     # save the trained model
     torch.save(model.state_dict(), 'asl_inceptionv3_model.pth')
-
-    # Plot validation accuracy graph 
-    plt.figure(figsize=(8, 6)) 
-    plt.plot(range(1, num_epochs + 1), val_accuracies, marker='o', linestyle='-') 
-    plt.xlabel('Epoch') 
-    plt.ylabel('Accuracy') 
-    plt.title('Validation Accuracy') 
-    plt.grid(True) 
-    plt.show() 
-
-    # Plot training loss graph 
-    plt.figure(figsize=(8, 6)) 
-    plt.plot(range(1, num_epochs + 1), train_losses, marker='o', linestyle='-') 
-    plt.xlabel('Epoch') 
-    plt.ylabel('Loss') 
-    plt.title('Training Loss') 
-    plt.grid(True) 
-    plt.show()
-
 
 def main():
     parser = argparse.ArgumentParser(description='Training Script')
